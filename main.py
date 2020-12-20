@@ -58,7 +58,6 @@ def OnGroupMsgs(message):
     tmp2 = tmp1['CurrentPacket']
     tmp3 = tmp2['Data']
     a = GMess(tmp3)
-    cm = a.Content.split(' ',3) #分割命令
     '''
     a.FrQQ 消息来源
     a.QQGName 来源QQ群昵称
@@ -89,7 +88,6 @@ def OnFriendMsgs(message):
     tmp2 = tmp1['CurrentPacket']
     tmp3 = tmp2['Data']
     a = Mess(tmp3)
-    cm = a.Content.split(' ')
     
     User.User(msg=a.Content,QQ=a.FromQQ)
     
