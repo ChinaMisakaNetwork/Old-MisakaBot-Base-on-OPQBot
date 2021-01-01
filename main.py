@@ -6,7 +6,7 @@ import socket
 import logging
 import re
 import Text
-from methods import Group,User
+import Group,User
 
 f = open('./config.json')
 config = json.loads(f.read())

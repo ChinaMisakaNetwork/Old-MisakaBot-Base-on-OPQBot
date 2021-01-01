@@ -1,11 +1,8 @@
 #-*- coding: UTF-8 -*-
 
-if __name__ != '__main__':
-    from methods import api
-else:
-    import api
+import api
 import json
-from module import sql
+import sql
 
 f = open('./config.json')
 config = json.loads(f.read())
