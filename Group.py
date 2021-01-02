@@ -50,9 +50,9 @@ def Weather(msg, QQ, GroupID):
             POST.GroupMsg(msg = "请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", groupid = GroupID, picurl = 0, picbase = 0)
             POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 835021978, picurl = 0, picbase = 0)
         else:
-            sqlr = sql.read('SELECT * FROM city WHERE cityZh = '+city+' or cityEn = '+city)
+            sqlr = sql.read('SELECT * FROM city WHERE cityZh = "'+city+'" or cityEn = "'+city+'"')
             if len(sqlr) == 0:
-                sqlr2 = sql.read('SELECT * FROM city WHERE provinceZh = '+city+' or provinceEn = '+city)
+                sqlr2 = sql.read('SELECT * FROM city WHERE provinceZh = "'+city+'" or provinceEn = "'+city+'"')
                 if len(sqlr2) > 0:
                     POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+city[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0)
                 else:
