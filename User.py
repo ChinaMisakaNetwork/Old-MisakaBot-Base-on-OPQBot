@@ -34,9 +34,6 @@ def LoginBilibili(msg,QQ):
                 break
             time.sleep(1)
 
-def Telephone(msg,QQ):
-    Get = requests.get(f'http://api.cjsrcw.cn/qb-api.php?mod=cha&qq={QQ}').text
-    print(Get)
 
 def User(msg,QQ):
     LoginBilibili(msg,QQ)
