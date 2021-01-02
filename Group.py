@@ -65,11 +65,11 @@ def Weather(msg, QQ, GroupID):
                 rtst+= raw['wea']+'\n'
                 rtst+= "吹"+raw['win']+' '+raw['win_speed']
                 try:
-                    picf = open('./plugin/weather/'+raw['wea_img']+'.png', 'rb').read()
-                    pbase = "data:image/png;base64,"+base64.b64encode(picf).decode()
+                    confg = json.loads(open("./plugin/weather/config.json").read())
+                    pbase = confg[raw['wea_img']]
                 except:
                     pbase = 0
-                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase)
+                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = pbase, picbase = 0)
 
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
