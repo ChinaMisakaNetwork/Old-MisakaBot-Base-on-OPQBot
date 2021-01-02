@@ -22,14 +22,14 @@ class PostMsg:
             response = requests.request("POST", url, headers=headers,json=payload)
             return(response.text)
 
-    def GroupMsg(self,msg,groupid,picbase,picurl,atUser):
+    def GroupMsg(self,msg,groupid,picbase,picurl):
 
         serverurl=self.url
         botqq=self.botqq
         url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
 
         if picbase != 0 or picurl != 0:
-            payload = {"toUser":groupid,"sendToType":2,"sendMsgType":"PicMsg","content":msg,"picUrl":picurl,"picBase64Buf":picbase,"atUser":atUser}#拼接消息包
+            payload = {"toUser":groupid,"sendToType":2,"sendMsgType":"PicMsg","content":msg,"picUrl":picurl,"picBase64Buf":picbase,}#拼接消息包
             headers = {'Content-Type': 'application/json'}
             response = requests.request("POST", url, headers=headers,json=payload)
             return(response.text)
