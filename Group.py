@@ -54,7 +54,7 @@ def Weather(msg, QQ, GroupID):
             if len(sqlr) == 0:
                 sqlr2 = sql.read('SELECT * FROM city WHERE provinceZh = "'+city+'" or provinceEn = "'+city+'"')
                 if len(sqlr2) > 0:
-                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+sqlr2[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0)
+                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+sqlr2[0][4]+"省的城市有: \n"+", ".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"。", groupid = GroupID, picurl = 0, picbase = 0)
                 else:
                     POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0)
             else:
@@ -63,10 +63,11 @@ def Weather(msg, QQ, GroupID):
                 rtst+= "温度: "+str(raw['tem'])+"℃ ("+str(raw['tem2'])+"℃-"+str(raw['tem1'])+"℃)\n"
                 rtst+= "湿度："+raw['humidity']+'\n'
                 rtst+= raw['wea']+'\n'
-                rtst+= "吹"+raw['win']+' '+raw['win_speed']+'[PICFLAG]'
+                rtst+= "吹"+raw['win']+' '+raw['win_speed']
                 try:
                     picf = open('./plugin/weather/'+raw['wea_img']+'.png', 'rb').read()
-                    pbase = "data:image/jpeg;base64,"+base64.b64encode(picf).decode()
+                    pbase = "data:image/png;base64,"+base64.b64encode(picf).decode()
+                    rtst += '[PICFLAG]'
                 except:
                     pbase = 0
                 POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase)
