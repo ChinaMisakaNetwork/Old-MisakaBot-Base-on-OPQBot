@@ -8,7 +8,7 @@ from tencentcloud.cms.v20190321 import cms_client, models
 
 def Check(msg):
     try: 
-        
+        cred = credential.Credential("AKIDidS9h8oWr9M3hCnghZK3nQSahHm6vJFE", "BpOuFS70ogTQRJ1jS9k8QkJmK8AFatG6") 
         httpProfile = HttpProfile()
         httpProfile.endpoint = "cms.tencentcloudapi.com"
         clientProfile = ClientProfile()
