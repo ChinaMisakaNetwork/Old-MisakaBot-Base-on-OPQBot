@@ -42,7 +42,7 @@ def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
         POST.SetShutUpUser(qq=QQ,time=config['TextShutupTime'],groupid=GroupID)
     
 def Weather(msg, QQ, GroupID):
-    if msg.split()[0] == "查询天气" and len(msg.split()) == 2:
+    if msg.split()[0] == "#查询天气" and len(msg.split()) == 2:
         city = zhconv.convert(msg.split()[1], "zh-hans").replace("'","").lower().replace(' ','')
         if '#' in city or '--' in city or '"' in city:
             POST.GroupMsg(msg = "请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", groupid = GroupID, picurl = 0, picbase = 0, atUser = QQ)
