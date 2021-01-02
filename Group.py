@@ -7,6 +7,7 @@ import itertools
 import zhconv
 import urllib
 import base64
+import sympy
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -97,7 +98,12 @@ def Weather(msg, QQ, GroupID):
                     pbase = 0
                 POST.GroupMsg(msg = zhconv.convert(rtst, {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = pbase)
 
+def Calc(msg, QQ, GroupID):
+    if msg.split()[0] == "#计算":
+        pass
+
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
     LoginBilibili(msg,QQ,GroupID)
     Weather(msg, QQ, GroupID)
+    Calc(msg, QQ, GroupID)
