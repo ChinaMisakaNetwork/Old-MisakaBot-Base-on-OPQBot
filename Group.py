@@ -54,7 +54,7 @@ def Weather(msg, QQ, GroupID):
             if len(sqlr) == 0:
                 sqlr2 = sql.read('SELECT * FROM city WHERE provinceZh = "'+city+'" or provinceEn = "'+city+'"')
                 if len(sqlr2) > 0:
-                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+city[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0)
+                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+sqlr2[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0)
                 else:
                     POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0)
             else:
