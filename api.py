@@ -103,7 +103,7 @@ class PostMsg:
 #A.UserMsg(msg='这是Wordpress',to=3526436393,picbase=0,picurl=0)
 
 def GetUserBilibili(QQ):
-    from module import sql
+    import sql
     QQ = str(QQ)
     tmp = sql.read(f'SELECT * FROM bilibili WHERE QQ="{QQ}"')
     return({"csrf":tmp[1],"cookie":tmp[2]})

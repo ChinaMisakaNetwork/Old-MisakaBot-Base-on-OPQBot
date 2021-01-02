@@ -3,6 +3,8 @@
 import api
 import json
 import sql
+import itertools
+
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -15,7 +17,7 @@ def ShutUp(msg,QQ,GroupID):
     import json
     if '#禁言' in msg:
         Adminer = sql.read('SELECT * FROM Admin;')
-        if str(QQ) in str(Adminer):
+        if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
                 time = json.loads(msg)['Content'].split(' ')[2]
@@ -39,6 +41,7 @@ def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
         POST.GroupMsg(msg=f'监测到违规信息,已经撤回,类型为{Type}',groupid=GroupID,picurl=0,picbase=0,atUser=0)
         POST.SetShutUpUser(qq=QQ,time=config['TextShutupTime'],groupid=GroupID)
     
+
 
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
