@@ -69,7 +69,7 @@ def Weather(msg, QQ, GroupID):
                     pbase = base64.b64encode(picf).decode()
                 except:
                     pbase = 0
-                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase, atUser = QQ)
+                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase)
 
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
