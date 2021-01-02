@@ -110,10 +110,9 @@ def GetUserBilibili(QQ):
 
 
 '''
-A = PostMsg(这里是服务器地址,这里是机器人QQ)
-A.GroupMsg(msg=要发的信息,groupid=群号,picurl=图片url,picbase=图片base)  #发送群信息
-A.SetShutUpUser(qq=被禁言的QQ,time=时间，0为解除,groupid=群号)  #群禁言
-A.UserMsg(msg=信息,to=发给谁,picurl=图片url,picbase=图片的base64) #发送私聊信息
-A.TemporaryMsg(msg=信息,to=发给谁,groupid=群号,picurl=图片url,picbase=图片的base64) #发送临时会话
-A.Announce(groupid=群号,title=公告标题,text="公告内容",Pinned=是否置顶（传入布尔参数),Usewindow=是否弹出（布尔）,tonewuser="是否给新用户发送(布尔)")#发送群公告
+POST.GroupMsg(msg=要发的信息,groupid=群号,picurl=图片url,picbase=图片base)  #发送群信息
+POST.SetShutUpUser(qq=被禁言的QQ,time=时间，0为解除,groupid=群号)  #群禁言
+POST.UserMsg(msg=信息,to=发给谁,picurl=图片url,picbase=图片的base64) #发送私聊信息
+POST.TemporaryMsg(msg=信息,to=发给谁,groupid=群号,picurl=图片url,picbase=图片的base64) #发送临时会话
+POST.Announce(groupid=群号,title=公告标题,text="公告内容",Pinned=是否置顶（传入布尔参数),Usewindow=是否弹出（布尔）,tonewuser="是否给新用户发送(布尔)")#发送群公告
 '''
