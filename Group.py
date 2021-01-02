@@ -67,6 +67,7 @@ def Weather(msg, QQ, GroupID):
                 try:
                     picf = open('./plugin/weather/'+raw['wea_img']+'.png', 'rb').read()
                     pbase = base64.b64encode(picf).decode()
+                    rtst += '[PICFLAG]'
                 except:
                     pbase = 0
                 POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase)
