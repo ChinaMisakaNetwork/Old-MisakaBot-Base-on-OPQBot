@@ -4,7 +4,9 @@ import api
 import json
 import sql
 import itertools
-
+import zhconv
+import urllib
+import base64
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -45,16 +47,16 @@ def Weather(msg, QQ, GroupID):
     if msg.split()[0] == "#查询天气" and len(msg.split()) == 2:
         city = zhconv.convert(msg.split()[1], "zh-hans").replace("'","").lower().replace(' ','')
         if '#' in city or '--' in city or '"' in city:
-            POST.GroupMsg(msg = "请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", groupid = GroupID, picurl = 0, picbase = 0, atUser = QQ)
-            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 835021978, picurl = 0, picbase = 0, atUser = 0)
+            POST.GroupMsg(msg = "请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", groupid = GroupID, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 835021978, picurl = 0, picbase = 0)
         else:
             sqlr = sql.read('SELECT * FROM city WHERE cityZh = '+city+' or cityEn = '+city)
             if len(sqlr) == 0:
                 sqlr2 = sql.read('SELECT * FROM city WHERE provinceZh = '+city+' or provinceEn = '+city)
                 if len(sqlr2) > 0:
-                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+city[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0, atUser = QQ)
+                    POST.GroupMsg(msg = "请输入具体城市名作为参数。属于"+city[0][4]+"省的城市有: \n"+"\n".join([x[2] for x in sql.read('SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"\n。", groupid = GroupID, picurl = 0, picbase = 0)
                 else:
-                    POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0, atUser = QQ)
+                    POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0)
             else:
                 raw = json.loads(urllib.request.urlopen("https://tianqiapi.com/api?version=v6&appid=18224395&appsecret=lgCc5VqI&cityid="+str(sqlr[0][0])).read())
                 rtst = sqlr[0][2]+"的天气状况: \n"
@@ -67,7 +69,7 @@ def Weather(msg, QQ, GroupID):
                     pbase = "data:image/jpeg;base64,"+base64.b64encode(picf).decode()
                 except:
                     pbase = 0
-                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase, atUser = QQ)
+                POST.GroupMsg(msg = rtst, groupid = GroupID, picurl = 0, picbase = pbase)
 
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
