@@ -55,7 +55,7 @@ def Weather(msg, QQ, GroupID):
         city = msg.split()[1].replace("'","").lower().replace(' ','')
         if '#' in city or '--' in city or '"' in city:
             POST.GroupMsg(msg = zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
-            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 835021978, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = '835021978', picurl = 0, picbase = 0)
         else:
             sqlr = sql.read('SELECT * FROM city WHERE cityZh = "'+city+'" or cityEn = "'+city+'"')
             if len(sqlr) == 0:
