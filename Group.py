@@ -18,7 +18,7 @@ POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
 
 def ShutUp(msg,QQ,GroupID):
     import json
-    if '/禁言' in msg:
+    if msg.split()[0] == "/禁言":
         Adminer = sql.read('SELECT * FROM Admin;')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
@@ -32,7 +32,7 @@ def ShutUp(msg,QQ,GroupID):
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',groupid=GroupID,picurl=0,picbase=0)
 def LoginBilibili(msg,QQ,GroupID):
-    if msg == '/御坂登录':
+    if msg == msg.split()[0] == "/御坂登录":
         POST.GroupMsg(msg='请私聊我发送“/御坂登录”登录哦',groupid=GroupID,picurl=0,picbase=0)
 
 def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
@@ -103,7 +103,7 @@ def Calc(msg, QQ, GroupID):
         pass
 
 def Menu(msg,QQ,Group):
-    if msg == '/御坂菜单':
+    if msg.split()[0] == "/御坂菜单":
         menu = '''
     御坂御坂可以帮您做这些事情哦:
 1.查询天气(/查询天气 {城市名} {索引})
