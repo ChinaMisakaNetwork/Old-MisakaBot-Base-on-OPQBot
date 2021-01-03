@@ -67,13 +67,20 @@ def OnGroupMsgs(message):
     a.MsgSeq 消息ID
     '''
     if 'GroupPic' in str(a.Content):
-        Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
+        #Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
+        picurl = json.loads(a.Content)['GroupPic'][0]['Url']
+        reason = json.loads(Text.CheckPic(picurl))
+        if reason['Label'] != 'Normal':
+            Type1 = reason['Label']
+            Type2 = reason['LabelResults'][0]['SubLabel']
+            Type = f'{Type1}图片--{Type2}图片'
+            Group.Block(Type=Type,GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
     else:
         Jiance = Text.Check(msg=a.Content)
         if Jiance['Data']['DetailResult'] == None:
             Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
         else:
-            Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'],GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID)
+            Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'],GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
 
     te = re.search(r'\#(.*)',str(a.Content))
     if te == None:

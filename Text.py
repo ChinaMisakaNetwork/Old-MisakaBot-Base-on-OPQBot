@@ -25,3 +25,31 @@ def Check(msg):
         return(Result)
     except TencentCloudSDKException as err: 
         return(err)
+
+def CheckPic(url):
+    import json
+    from tencentcloud.common import credential
+    from tencentcloud.common.profile.client_profile import ClientProfile
+    from tencentcloud.common.profile.http_profile import HttpProfile
+    from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
+    from tencentcloud.ims.v20200713 import ims_client, models
+    try: 
+        cred = credential.Credential("AKIDidS9h8oWr9M3hCnghZK3nQSahHm6vJFE", "BpOuFS70ogTQRJ1jS9k8QkJmK8AFatG6") 
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "ims.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = ims_client.ImsClient(cred, "ap-guangzhou", clientProfile) 
+
+        req = models.ImageModerationRequest()
+        params = {
+            "FileUrl": url
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = client.ImageModeration(req) 
+        return(resp.to_json_string()) 
+
+    except TencentCloudSDKException as err: 
+        print(err) 

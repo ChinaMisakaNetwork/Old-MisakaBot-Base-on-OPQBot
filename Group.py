@@ -35,13 +35,13 @@ def LoginBilibili(msg,QQ,GroupID):
     if msg == msg.split()[0] == "/御坂登录":
         POST.GroupMsg(msg='请私聊我发送“/御坂登录”登录哦',groupid=GroupID,picurl=0,picbase=0)
 
-def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
+def Block(Type,GroupID,MsgSeq,MsgRandom,QQ,NickName):
     #Adminer = sql.read('SELECT * FROM Admin;')
     if str(QQ) == str(config['botqq']):
         return
     else:
         POST.CheHui(GroupID=GroupID,MsgSeq=MsgSeq,MsgRandom=MsgRandom)
-        POST.GroupMsg(msg=f'监测到违规信息,请注意文明聊天,类型为{Type}',groupid=GroupID,picurl=0,picbase=0)
+        POST.GroupMsg(msg=f'@{NickName} 监测到违规信息,请注意文明聊天,类型为{Type}',groupid=GroupID,picurl=0,picbase=0)
         POST.SetShutUpUser(qq=QQ,time=config['TextShutupTime'],groupid=GroupID)
         
 def Weather(msg, QQ, GroupID):
