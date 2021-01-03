@@ -7,27 +7,35 @@ user = 'MisakaNetwork'
 password = 'MisakaNetwork'
 database = 'MisakaNetwork'
 charset = 'utf8'
+
+
 def read(SQL):
-    conn = pymysql.connect(host=host, user=user,password=password,database=database,charset=charset)
+    conn = pymysql.connect(
+        host=host, user=user, password=password, database=database, charset=charset)
     cursor = conn.cursor()
     cursor.execute(SQL)
     ret = cursor.fetchall()
     cursor.close()
     conn.close()
     return(ret)
+
+
 def write(sql):
-    conn = pymysql.connect(host=host, user=user,password=password,database=database,charset=charset)
+    conn = pymysql.connect(
+        host=host, user=user, password=password, database=database, charset=charset)
     cursor = conn.cursor()
     cursor.execute(sql)
     conn.commit()
     cursor.close()
     conn.close()
 
+
 app = flask.Flask(__name__)
+
 
 @app.route('/')
 def root():
-  return '''
+    return '''
   <!DOCTYPE html>
   <html>
     <head>
@@ -131,45 +139,57 @@ def root():
     <form action="/add" onsubmit="return add_submit();"><label for="add">加入账号:</label><input name="add" id="add" type="number" min="0" onkeypress="return add_check();"></input><input type="submit">&nbsp;&nbsp;&nbsp;<label id='err_mg'></label></form><br><form onsubmit="return rem();"><input id="remove_button" type="submit" value="移除所选账号"></input>&nbsp;&nbsp;&nbsp;<label id='err_rm'></label></form>
   </html>'''
 
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-  qq = flask.request.args.get('qq')
-  write(f'INSERT INTO Admin VALUE ("{qq}")')
-  return ''
+    qq = flask.request.args.get('qq')
+    write(f'INSERT INTO Admin VALUE ("{qq}")')
+    return ''
+
+
 @app.route('/exists', methods=['GET', 'POST'])
 def exists():
-  qq = flask.request.args.get('qq')
-  try:
-    int(qq)
-    if len(read('SELECT * FROM Admin WHERE QQ='+str(qq)))>0:
-      return 'true'
-    else:
-      return 'false'
-  except:
-    return 'nil'
+    qq = flask.request.args.get('qq')
+    try:
+        int(qq)
+        if len(read('SELECT * FROM Admin WHERE QQ='+str(qq))) > 0:
+            return 'true'
+        else:
+            return 'false'
+    except:
+        return 'nil'
+
+
 @app.route('/list', methods=['GET', 'POST'])
 def lst():
-  res = read('SELECT * FROM Admin')
-  retl = []
-  for x in res:
-    retl.append(x[0])
-  return flask.jsonify(retl)
+    res = read('SELECT * FROM Admin')
+    retl = []
+    for x in res:
+        retl.append(x[0])
+    return flask.jsonify(retl)
+
+
 @app.route('/remove', methods=['GET', 'POST'])
 def remove():
-  qq = flask.request.args.get('qq')
-  try:
-    int(qq)
-    write('DELETE FROM Admin WHERE QQ='+qq)
-    return 'true'
-  except:
-    return 'false'
-@app.route('/sl', methods = ['GET', 'POST'])
+    qq = flask.request.args.get('qq')
+    try:
+        int(qq)
+        write('DELETE FROM Admin WHERE QQ='+qq)
+        return 'true'
+    except:
+        return 'false'
+
+
+@app.route('/sl', methods=['GET', 'POST'])
 def sl():
-  res = read('SELECT * FROM Admin')
-  retl = "<select id=\'adlist\' size=\'15\'>"
-  retl+=''.join(["<option value=\'"+x[0]+"\'> "+x[0]+" </option>" for x in res])
-  retl += '</select>'
-  return retl
+    res = read('SELECT * FROM Admin')
+    retl = "<select id=\'adlist\' size=\'15\'>"
+    retl += ''.join(["<option value=\'"+x[0]+"\'> " +
+                     x[0]+" </option>" for x in res])
+    retl += '</select>'
+    return retl
+
+
 hostweb = '127.0.0.1'
 port = '80'
 app.run(host=hostweb, port=port)
