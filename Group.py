@@ -102,8 +102,19 @@ def Calc(msg, QQ, GroupID):
     if msg.split()[0] == "/计算":
         pass
 
+def Menu(msg,QQ,Group):
+    if msg == '/御坂菜单':
+        menu = '''
+    御坂御坂可以帮您做这些事情哦:
+1.查询天气(/查询天气 {城市名} {索引})
+2.登录哔哩哔哩(/御坂登录)
+3.群管(/禁言 @某人 时间)
+        '''
+        POST.GroupMsg(msg=menu,groupid=Group,picbase=0,picurl=0)
+
 def Group(msg,QQ,GroupID):
     ShutUp(msg,QQ,GroupID)
     LoginBilibili(msg,QQ,GroupID)
     Weather(msg, QQ, GroupID)
     Calc(msg, QQ, GroupID)
+    Menu(msg,QQ,GroupID)
