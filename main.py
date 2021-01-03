@@ -67,6 +67,9 @@ def OnGroupMsgs(message):
     a.MsgSeq 消息ID
     '''
     #————————违规消息检测部分分割线————————
+    import sql
+    import itertools
+    Adminer = sql.read('SELECT * FROM Admin;')
     if 'GroupPic' in str(a.Content):
         #Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
         picurl = json.loads(a.Content)['GroupPic'][0]['Url']
@@ -84,7 +87,10 @@ def OnGroupMsgs(message):
         if Jiance['Data']['DetailResult'] == None:
             Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
         else:
-            Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'],GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
+            if '/禁言' in a.Content and str(a.FromQQID) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+                Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
+            else:
+                Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'],GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
         #————————违规消息检测部分分割线————————
         #如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
         #Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
