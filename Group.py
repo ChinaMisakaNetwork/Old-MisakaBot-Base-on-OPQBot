@@ -41,7 +41,7 @@ def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
         return
     else:
         POST.CheHui(GroupID=GroupID,MsgSeq=MsgSeq,MsgRandom=MsgRandom)
-        POST.GroupMsg(msg=f'监测到违规信息,已经撤回,类型为{Type}',groupid=GroupID,picurl=0,picbase=0)
+        POST.GroupMsg(msg=f'监测到违规信息,请注意文明聊天,类型为{Type}',groupid=GroupID,picurl=0,picbase=0)
         POST.SetShutUpUser(qq=QQ,time=config['TextShutupTime'],groupid=GroupID)
         
 def Weather(msg, QQ, GroupID):
