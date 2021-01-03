@@ -18,7 +18,7 @@ POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
 
 def ShutUp(msg,QQ,GroupID):
     import json
-    if '#禁言' in msg:
+    if '/禁言' in msg:
         Adminer = sql.read('SELECT * FROM Admin;')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
@@ -32,8 +32,8 @@ def ShutUp(msg,QQ,GroupID):
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',groupid=GroupID,picurl=0,picbase=0)
 def LoginBilibili(msg,QQ,GroupID):
-    if msg == '#御坂登录':
-        POST.GroupMsg(msg='请私聊我发送“#御坂登录”登录哦',groupid=GroupID,picurl=0,picbase=0)
+    if msg == '/御坂登录':
+        POST.GroupMsg(msg='请私聊我发送“/御坂登录”登录哦',groupid=GroupID,picurl=0,picbase=0)
 
 def Block(Type,GroupID,MsgSeq,MsgRandom,QQ):
     Adminer = sql.read('SELECT * FROM Admin;')
@@ -51,7 +51,7 @@ def Weather(msg, QQ, GroupID):
         tflag = True
     else:
         tflag = False
-    if msg.split()[0] == "#查询天气" and len(msg.split()) < 4 and len(msg.split()) > 1:
+    if msg.split()[0] == "/查询天气" and len(msg.split()) < 4 and len(msg.split()) > 1:
         city = msg.split()[1].replace("'","").lower().replace(' ','')
         if '#' in city or '--' in city or '"' in city:
             POST.GroupMsg(msg = zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
@@ -99,7 +99,7 @@ def Weather(msg, QQ, GroupID):
                 POST.GroupMsg(msg = zhconv.convert(rtst, {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = pbase)
 
 def Calc(msg, QQ, GroupID):
-    if msg.split()[0] == "#计算":
+    if msg.split()[0] == "/计算":
         pass
 
 def Group(msg,QQ,GroupID):
