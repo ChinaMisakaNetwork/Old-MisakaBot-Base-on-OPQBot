@@ -102,7 +102,7 @@ def Calc(msg, QQ, GroupID):
     if msg.split()[0] == "/计算":
         return
         from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, parse_expr
-        from sympy import *
+        #from sympy import *
         transformations = (standard_transformations + (implicit_multiplication_application,))
         fullye = msg.replace("^", "").split("=")
         exp = [parse_expr(x, transformations = transformations) for x in fullye]
