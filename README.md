@@ -9,10 +9,12 @@
 群内功能提供三个参数(msg,QQ,GroupID)代表消息内容,发的人的QQ,群号  
 函数可以提供的操作(直接复制并传入参数就可以,不需要发送图片就picurl=0,picbase=0,这两参数都是可选,只需要传入一个就可以的,不用的参数就=0)  
 1. 发送群消息
-```POST.GroupMsg(msg=要发的信息,groupid=群号,picurl=图片url,picbase=图片base64值)
+```
+POST.GroupMsg(msg=要发的信息,groupid=群号,picurl=图片url,picbase=图片base64值)
 ```
 2. 禁言操作
-```POST.SetShutUpUser(qq=被禁言的QQ,time=时间，0为解除,groupid=群号)
+```
+POST.SetShutUpUser(qq=被禁言的QQ,time=时间，0为解除,groupid=群号)
 ```
 3. 发送私聊消息
 ```
