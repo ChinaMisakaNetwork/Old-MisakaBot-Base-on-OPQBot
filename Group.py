@@ -66,7 +66,7 @@ def Weather(msg, QQ, GroupID):
                     POST.GroupMsg(msg = zhconv.convert("无查询结果。\n请确认是否有错别字或者拼写错误。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
             else:
                 seindex = 0
-                if len(sqlr) > 0:
+                if len(sqlr) > 1:
                     try:
                         seindex = int(msg.split()[2]) - 1
                         if seindex < 0:
@@ -83,7 +83,7 @@ def Weather(msg, QQ, GroupID):
                         return
                 raw = json.loads(urllib.request.urlopen("https://tianqiapi.com/api?version=v6&appid=18224395&appsecret=lgCc5VqI&cityid="+str(sqlr[seindex][0])).read())
                 rtst = sqlr[0][2]
-                if len(sqlr)>0:
+                if len(sqlr)>1:
                     rtst+=" (%s)"%sqlr[seindex][4]
                 rtst+= "的天气状况: \n"
                 rtst+= "温度: "+str(raw['tem'])+"℃ ("+str(raw['tem2'])+"℃-"+str(raw['tem1'])+"℃)\n"
