@@ -18,7 +18,7 @@ POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
 
 def ShutUp(msg,QQ,GroupID):
     import json
-    if msg.split()[0] == "/禁言":
+    if "/禁言" in msg and QQ != config['botqq']:
         Adminer = sql.read('SELECT * FROM Admin;')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
