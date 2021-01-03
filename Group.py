@@ -100,7 +100,22 @@ def Weather(msg, QQ, GroupID):
 
 def Calc(msg, QQ, GroupID):
     if msg.split()[0] == "/计算":
-        pass
+        return
+        from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, parse_expr
+        from sympy import *
+        transformations = (standard_transformations + (implicit_multiplication_application,))
+        fullye = msg.replace("^", "").split("=")
+        exp = [parse_expr(x, transformations = transformations) for x in fullye]
+        if len(exp) == 1:
+            try:
+                result = "结果: \n"
+                try:
+                    pass
+                except:
+                    pass
+            except:
+                pass
+            
 
 def Menu(msg,QQ,Group):
     if msg.split()[0] == "/御坂菜单":
