@@ -66,6 +66,7 @@ def OnGroupMsgs(message):
     a.Content 消息内容
     a.MsgSeq 消息ID
     '''
+    #————————违规消息检测部分分割线————————
     if 'GroupPic' in str(a.Content):
         #Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
         picurl = json.loads(a.Content)['GroupPic'][0]['Url']
@@ -81,6 +82,10 @@ def OnGroupMsgs(message):
             Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
         else:
             Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'],GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
+        #————————违规消息检测部分分割线————————
+        #如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
+        #Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
+
 
     te = re.search(r'\#(.*)',str(a.Content))
     if te == None:
