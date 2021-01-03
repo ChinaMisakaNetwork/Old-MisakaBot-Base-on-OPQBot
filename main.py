@@ -73,7 +73,10 @@ def OnGroupMsgs(message):
         reason = json.loads(Text.CheckPic(picurl))
         if reason['Label'] != 'Normal':
             Type1 = reason['Label']
-            Type2 = reason['LabelResults'][0]['SubLabel']
+            try:
+                Type2 = reason['LabelResults'][0]['SubLabel']
+            except:
+                Type2 = 'None'
             Type = f'{Type1}图片--{Type2}图片'
             Group.Block(Type=Type,GroupID=a.FromQQG,MsgSeq=a.MsgSeq,MsgRandom=a.MsgRandom,QQ=a.FromQQID,NickName=a.FromQQName)
     else:
