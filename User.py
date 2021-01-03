@@ -16,7 +16,7 @@ def LoginBilibili(msg,QQ):
     a = login.Login()
     if msg == '/御坂登录':
         base = a.newlogin()
-        POST.UserMsg(msg='请在150秒内使用哔哩哔哩客户端扫描登录二维码',to=QQ,picurl=0,picbase=base)
+        POST.UserMsg(msg='请在提示登录请求过期前(最少150秒)内使用哔哩哔哩客户端扫描登录二维码',to=QQ,picurl=0,picbase=base)
         print(QQ)
         for _ in range(150):
             text = a.chaxunlogin()
@@ -31,8 +31,9 @@ def LoginBilibili(msg,QQ):
                     sql.write(f'insert into bilibili(QQ,csrf,cookie) values("{QQ}","{csrf}","{cookie}");')
                 except:
                     pass
-                break
+                return
             time.sleep(1)
+        POST.UserMsg(msg='您的登录请求已经过期',to=QQ,picurl=0,picbase=0)
 
 
 def User(msg,QQ):
