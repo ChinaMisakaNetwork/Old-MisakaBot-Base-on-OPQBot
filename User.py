@@ -14,7 +14,7 @@ def LoginBilibili(msg,QQ):
     import login
     import time
     a = login.Login()
-    if msg == '#御坂登录':
+    if msg == '/御坂登录':
         base = a.newlogin()
         POST.UserMsg(msg='请在150秒内使用哔哩哔哩客户端扫描登录二维码',to=QQ,picurl=0,picbase=base)
         print(QQ)
