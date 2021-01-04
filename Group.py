@@ -20,6 +20,13 @@ f.close()
 POST = api.PostMsg(url=config['server'], botqq=config['botqq'])
 #初始化#
 
+customize = [
+    {"Weather": Weather},
+    {"ShutUp": ShutUp},
+    {"LoginBilibili": LoginBilibili},
+    {"Calc": calc},
+    {"Menu": menu}
+]
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -225,7 +232,16 @@ Menu("/御坂菜单 1", '', '', [])
         except:
             raise
 
+_cbk = customize.copy()
+_initx = globals().copy()
+for _initn in _initx.keys():
+    if _initn[:6] == "gmeth_":
+        _cbk.update({_initn: _initx[_initn]})
+
 def Group(msg, QQ, GroupID):
+    '''
+    Old Method: 
+    '''
     ShutUp(msg, QQ, GroupID)
     LoginBilibili(msg, QQ, GroupID)
     Weather(msg, QQ, GroupID)
