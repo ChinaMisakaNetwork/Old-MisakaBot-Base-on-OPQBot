@@ -7,7 +7,12 @@ import itertools
 import zhconv
 import urllib
 import base64
-import sympy
+from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application
+from sympy import *
+from PIL import Image
+from urllib import request
+import requests
+import io
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -123,35 +128,102 @@ def Weather(msg, QQ, GroupID):
 
 
 def Calc(msg, QQ, GroupID):
-    if msg.split()[0] == "/计算":
-        return
-        from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application, parse_expr
-        #from sympy import *
-        transformations = (standard_transformations +
-                           (implicit_multiplication_application,))
-        fullye = msg.replace("^", "").split("=")
-        exp = [parse_expr(x, transformations=transformations) for x in fullye]
-        if len(exp) == 1:
+    if msg.split()[0] == "/计算" and len(msg.split())>1 and len(msg.split())<4:
+        transformations = (standard_transformations + (implicit_multiplication_application,))
+        rmsg = msg[1:]
+        def get_concat_v_blank(im1, im2, color=(255, 255, 255, 0)):
+            dst = Image.new('RGBA', (max(im1.width, im2.width), im1.height + im2.height + 50), color)
+            dst.paste(im1, (0, 0))
+            dst.paste(im2, (0, im1.height+50))
+            return dst
+        def parse(s, e=True):
+            return parse_expr(s, transformations=transformations, evaluate = e)
+        exp = msg.split()[1]
+        try:
+            u=msg.split()[2]
+        except:
+            u=None
+        exp = exp.replace("^","**").replace(" ","")
+        exp = exp.split("=")
+        if len(exp)==1:
             try:
-                result = "结果: \n"
-                try:
-                    pass
-                except:
-                    pass
-            except:
-                pass
+                f = latex(parse(exp[0]))
+                v = latex(parse(exp[0], False))
+                u = v + "=" + f
+                img = base64.b64encode(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":u,"resolution":600,"color":"000000"}).text)['url']).read()).decode()
+                POST.GroupMsg(msg = "结果: "+str(parse(exp[0]))+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = img)
+            except BaseException as e:
+                raise e
+                POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+        elif len(exp)==2:
+            try:
+                equat = Eq(parse(exp[0]), parse(exp[1]))
+                if u != None:
+                    u = parse(u)
+                    if not (u in list(parse(exp[0]).free_symbols)+list(parse(exp[1]).free_symbols)):
+                        u = None
+                if u == None:
+                    solv = solve(equat, dict=True)
+                else:
+                    solv = solve(equat, u, dict=True)
+                if len(solv)>0:
+                    rtlist = []
+                    imgs = []
+                    for x in solv:
+                        var = list(x.keys())[0]
+                        res = list(x.values())[0]
+                        ltv = latex(var)
+                        ltr = latex(res)
+                        lt = ltv+'='+ltr
+                        imgs.append(Image.open(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":lt,"resolution":600,"color":"000000"}).text)['url'])))
+                        rtlist.append(str(var)+"="+str(res))
+                    fimg = imgs[0]
+                    del imgs[0]
+                    for x in imgs:
+                        fimg = get_concat_v_blank(fimg, x)
+                    buffer = io.BytesIO()
+                    fimg.save(buffer, format='PNG')
+                    b6e = base64.b64encode(buffer.getvalue()).decode()
+                    POST.GroupMsg(msg = "解: \n"+" 或\n".join(rtlist)+"\n[PICFLAG]", groupid = GroupID, picurl = 0, picbase = b6e)
+                else:
+                    POST.GroupMsg(msg = "可能无解, 或者输入错误", groupid = GroupID, picurl = 0, picbase = 0)
+            except BaseException as e:
+                raise e
+                POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+        else:
+            return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
-
-def Menu(msg, QQ, Group):
-    if msg.split()[0] == "/御坂菜单":
-        menu = '''
-    御坂御坂可以帮您做这些事情哦:
-1.查询天气(/查询天气 {城市名} {索引})
-2.登录哔哩哔哩(/御坂登录)
-3.群管(/禁言 @某人 时间)
-        '''
+Menu("/御坂菜单 1", '', '', [])
+/查询天气 坂 菜 单   1
+>>> def Menu(msg, QQ, Group, SQL=[]):
+    cfg = [
+        {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":False, "callback":Weather, "cmd":"/查询天气"},
+        {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":False, "callback":LoginBilibili, "cmd":"/御坂登录"},
+        {"desc": "群管", "help":"/禁言 @某人 时间", "priv":True, "callback":ShutUp, "cmd":"/禁言"}
+    ]
+    uauser = []
+    for item in cfg:
+        if not item["priv"]:
+            uauser.append(item)
+    if str(QQ) in SQL:
+        unuser = cfg
+    else:
+        unuser = uauser
+    menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
+    if msg.split()[0] == "/御坂菜单" and len(msg.split())==1:
         POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
-
+    elif msg.split()[0] == "/御坂菜单":
+        try:
+            mm = int(msg.split()[1])
+            if mm > 0 and mm < len(unuser)+1:
+                mg = msg.split()[2:]
+                me = uauser[mm-1]['cmd']
+                mr = me + ' ' + " ".join(mg)
+                uauser[mm-1]['callback'](mr, QQ, Group)
+            else:
+                POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
+        except:
+            raise
 
 def Group(msg, QQ, GroupID):
     ShutUp(msg, QQ, GroupID)
