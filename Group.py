@@ -201,19 +201,19 @@ def Calc(msg, QQ, GroupID):
         else:
             return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
-Menu("/御坂菜单 1", '', '', [])
-/查询天气 坂 菜 单   1
->>> def Menu(msg, QQ, Group, SQL=[]):
+def Menu(msg, QQ, Group):
     cfg = [
         {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":False, "callback":Weather, "cmd":"/查询天气"},
         {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":False, "callback":LoginBilibili, "cmd":"/御坂登录"},
-        {"desc": "群管", "help":"/禁言 @某人 时间", "priv":True, "callback":ShutUp, "cmd":"/禁言"}
+        {"desc": "群管", "help":"/禁言 @某人 时间", "priv":True, "callback":ShutUp, "cmd":"/禁言"},
+        {"desc": "测试", "help":"/测试 [参数]", "priv":True, "callback":gmeth_test, "cmd":"/测试"}
     ]
     uauser = []
     for item in cfg:
         if not item["priv"]:
             uauser.append(item)
-    if str(QQ) in SQL:
+    Adminer = sql.read('SELECT * FROM Admin;')
+    if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
         unuser = cfg
     else:
         unuser = uauser
@@ -232,7 +232,10 @@ Menu("/御坂菜单 1", '', '', [])
                 POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
         except:
             raise
-
+def gmeth_test(msg, QQ, GroupID):
+    if msg.split()[0] == '/测试':
+        ret = "OK\n参数: "+','.join(msg.split()[1:])
+        POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
 _cbk = customize.copy()
 _initx = globals().copy()
 for _initn in _initx.keys():
@@ -253,4 +256,4 @@ def Group(msg, QQ, GroupID):
     Menu(msg, QQ, GroupID)
     '''
     for _stepx in _cbk.values():
-        _stepx(msg, QQ GroupID)
+        _stepx(msg, QQ, GroupID)
