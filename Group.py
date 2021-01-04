@@ -13,6 +13,7 @@ from PIL import Image
 from urllib import request
 import requests
 import io
+import glob
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -237,13 +238,19 @@ _initx = globals().copy()
 for _initn in _initx.keys():
     if _initn[:6] == "gmeth_":
         _cbk.update({_initn: _initx[_initn]})
-
+_initgb = glob.glob('/plugins/pfile/*.py')
+for _initf in _initgb:
+    _initp = os.path.splitext(_initf)[0].split('/')[-1]
+    globals().update({"_initp":(lambda msg, QQ, GroupID: exec(open(_initf).read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
+    _cbk.update({_initp: globals().copy()[_initp]})
 def Group(msg, QQ, GroupID):
     '''
     Old Method: 
-    '''
     ShutUp(msg, QQ, GroupID)
     LoginBilibili(msg, QQ, GroupID)
     Weather(msg, QQ, GroupID)
     Calc(msg, QQ, GroupID)
     Menu(msg, QQ, GroupID)
+    '''
+    for _stepx in _cbk.values():
+        _stepx(msg, QQ GroupID)
