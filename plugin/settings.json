@@ -1,10 +1,10 @@
 {
   "menu":
   [
-    {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":False, "callback":Weather, "cmd":"/查询天气"},
-    {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":False, "callback":LoginBilibili, "cmd":"/御坂登录"},
-    {"desc": "群管", "help":"/禁言 @某人 时间", "priv":True, "callback":ShutUp, "cmd":"/禁言"},
-    {"desc": "测试", "help":"/测试 [参数]", "priv":True, "callback":gmeth_test, "cmd":"/测试"}
+    {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":false, "callback":Weather, "cmd":"/查询天气"},
+    {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":false, "callback":LoginBilibili, "cmd":"/御坂登录"},
+    {"desc": "群管", "help":"/禁言 @某人 时间", "priv":true, "callback":ShutUp, "cmd":"/禁言"},
+    {"desc": "测试", "help":"/测试 [参数]", "priv":true, "callback":gmeth_test, "cmd":"/测试"}
   ],
   "customize":
   {
