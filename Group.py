@@ -1,10 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-import api
 import json
-import sql
 import itertools
-import zhconv
 import urllib
 import base64
 from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application
@@ -14,20 +11,19 @@ from urllib import request
 import requests
 import io
 import glob
+import zhconv
+import os
+class sql:
+    def read(a):
+        return [['admin']]
 
-f = open('./config.json')
-config = json.loads(f.read())
-f.close()
-POST = api.PostMsg(url=config['server'], botqq=config['botqq'])
-#初始化#
-
-customize = [
-    {"Weather": Weather},
-    {"ShutUp": ShutUp},
-    {"LoginBilibili": LoginBilibili},
-    {"Calc": calc},
-    {"Menu": menu}
-]
+class POST:
+    def GroupMsg(msg, groupid = 0, picurl = 0, picbase = 0):
+        print(msg)
+        if picbase != 0:
+            a = io.BytesIO(base64.decodebytes(picbase.encode()))
+            Image.open(a).show()
+        
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -146,24 +142,44 @@ def Calc(msg, QQ, GroupID):
             return dst
         def parse(s, e=True):
             return parse_expr(s, transformations=transformations, evaluate = e)
-        exp = msg.split()[1]
+        expo = msg.split()[1]
+        if expo.lower() in ['解方程','因式分解','一般计算', 'alg', 'factor', 'calc']:
+            meth = {'解方程':0,'因式分解':1,'一般计算':2, 'alg':0, 'factor':1, 'calc':2}[expo.lower()]
+            msg = msg[1:]
+            exp = msg.split()[1]
+            exp2 = exp.replace("^","**").replace(" ","").split("=")
+            if len(exp2) == 1:
+                if meth == 0:
+                    meth = 2
+            else:
+                if meth == 1 or meth == 2:
+                    POST.GroupMsg(msg= "请检查输入!", groupid = GroupID, picurl = 0, picbase = 0)
+                    return
+        else:
+            exp = msg.split()[1]
+            exp2 = exp.replace("^","**").replace(" ","").split("=")
+            if len(exp2) == 1:
+                meth = 2
+            else:
+                meth = 0
         try:
             u=msg.split()[2]
         except:
             u=None
         exp = exp.replace("^","**").replace(" ","")
         exp = exp.split("=")
-        if len(exp)==1:
+        if meth == 2:
             try:
                 f = latex(parse(exp[0]))
-                v = latex(parse(exp[0], False))
+                with evaluate(False):
+                    v = latex(parse(exp[0], False))
                 u = v + "=" + f
                 img = base64.b64encode(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":u,"resolution":600,"color":"000000"}).text)['url']).read()).decode()
                 POST.GroupMsg(msg = "结果: "+str(parse(exp[0]))+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = img)
             except BaseException as e:
                 raise e
                 POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
-        elif len(exp)==2:
+        elif meth == 0:
             try:
                 equat = Eq(parse(exp[0]), parse(exp[1]))
                 if u != None:
@@ -196,8 +212,15 @@ def Calc(msg, QQ, GroupID):
                 else:
                     POST.GroupMsg(msg = "可能无解, 或者输入错误", groupid = GroupID, picurl = 0, picbase = 0)
             except BaseException as e:
-                raise e
                 POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+        elif meth == 1:
+            try:
+                expres = parse(exp[0])
+                v = sympy.factor(expres)
+                b6e2 = request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":latex(v),"resolution":600,"color":"000000"}).text)['url'])
+                POST.GroupMsg(msg = '解: '+str(v).replace("**", '^')+"\n[PICFLAG]", groupid=GroupID, picurl = 0, picbase = base64.encodebytes(b6e2).decode())
+            except BaseException as e:
+                POST.GroupMsg(msg = "可能无法分解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
         else:
             return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
@@ -225,9 +248,9 @@ def Menu(msg, QQ, Group):
             mm = int(msg.split()[1])
             if mm > 0 and mm < len(unuser)+1:
                 mg = msg.split()[2:]
-                me = uauser[mm-1]['cmd']
+                me = unuser[mm-1]['cmd']
                 mr = me + ' ' + " ".join(mg)
-                uauser[mm-1]['callback'](mr, QQ, Group)
+                unuser[mm-1]['callback'](mr, QQ, Group)
             else:
                 POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
         except:
@@ -235,17 +258,25 @@ def Menu(msg, QQ, Group):
 def gmeth_test(msg, QQ, GroupID):
     if msg.split()[0] == '/测试':
         ret = "OK\n参数: "+','.join(msg.split()[1:])
-        POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
+        POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
+
+#函数区结束
+
+#初始化
+
+customize = {"Weather": Weather,
+    "ShutUp": ShutUp,
+    "LoginBilibili": LoginBilibili,
+    "Calc": Calc,
+    "Menu": Menu}
+
+
 _cbk = customize.copy()
 _initx = globals().copy()
 for _initn in _initx.keys():
-    if _initn[:6] == "gmeth_":
+    if _initn[:6] == "gmeth_" and type(_initx[_initn]).__name__=='function':
         _cbk.update({_initn: _initx[_initn]})
-_initgb = glob.glob('/plugins/pfile/*.py')
-for _initf in _initgb:
-    _initp = os.path.splitext(_initf)[0].split('/')[-1]
-    globals().update({"_initp":(lambda msg, QQ, GroupID: exec(open(_initf).read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
-    _cbk.update({_initp: globals().copy()[_initp]})
+_cbkl1 = _cbk.copy()
 def Group(msg, QQ, GroupID):
     '''
     Old Method: 
@@ -255,5 +286,11 @@ def Group(msg, QQ, GroupID):
     Calc(msg, QQ, GroupID)
     Menu(msg, QQ, GroupID)
     '''
+    _cbk = _cbkl1.copy()
+    _initgb = glob.glob('./plugins/pfile/*.py')
+    for _initf in _initgb:
+        _initp = os.path.splitext(_initf)[0].split('/')[-1]
+        globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf).read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
+        _cbk.update({_initp: globals().copy()[_initp]})
     for _stepx in _cbk.values():
         _stepx(msg, QQ, GroupID)
