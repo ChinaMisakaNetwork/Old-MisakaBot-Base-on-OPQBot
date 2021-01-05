@@ -225,12 +225,7 @@ def Calc(msg, QQ, GroupID):
             return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
 def Menu(msg, QQ, Group):
-    cfg = [
-        {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":False, "callback":Weather, "cmd":"/查询天气"},
-        {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":False, "callback":LoginBilibili, "cmd":"/御坂登录"},
-        {"desc": "群管", "help":"/禁言 @某人 时间", "priv":True, "callback":ShutUp, "cmd":"/禁言"},
-        {"desc": "测试", "help":"/测试 [参数]", "priv":True, "callback":gmeth_test, "cmd":"/测试"}
-    ]
+    cfg = eval(open("./plugin/settings.json").read())['menu']
     uauser = []
     for item in cfg:
         if not item["priv"]:
@@ -264,11 +259,7 @@ def gmeth_test(msg, QQ, GroupID):
 
 #初始化
 
-customize = {"Weather": Weather,
-    "ShutUp": ShutUp,
-    "LoginBilibili": LoginBilibili,
-    "Calc": Calc,
-    "Menu": Menu}
+customize = eval(open('./plugin/settings.json').read())
 
 
 _cbk = customize.copy()
@@ -287,7 +278,7 @@ def Group(msg, QQ, GroupID):
     Menu(msg, QQ, GroupID)
     '''
     _cbk = _cbkl1.copy()
-    _initgb = glob.glob('./plugins/pfile/*.py')
+    _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
         _initp = os.path.splitext(_initf)[0].split('/')[-1]
         globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf).read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
