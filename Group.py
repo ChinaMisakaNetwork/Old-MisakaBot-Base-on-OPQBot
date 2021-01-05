@@ -13,17 +13,12 @@ import io
 import glob
 import zhconv
 import os
-class sql:
-    def read(a):
-        return [['admin']]
+import sql
 
-class POST:
-    def GroupMsg(msg, groupid = 0, picurl = 0, picbase = 0):
-        print(msg)
-        if picbase != 0:
-            a = io.BytesIO(base64.decodebytes(picbase.encode()))
-            Image.open(a).show()
-        
+f = open('./config.json')
+config = json.loads(f.read())
+f.close()
+POST = api.PostMsg(url=config['server'],botqq=config['botqq'])  
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -225,7 +220,7 @@ def Calc(msg, QQ, GroupID):
             return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
 def Menu(msg, QQ, Group):
-    cfg = eval(open("./plugin/settings.json").read())['menu']
+    cfg = eval(open("./plugins/settings.json", encoding='utf-8').read())['menu']
     uauser = []
     for item in cfg:
         if not item["priv"]:
@@ -259,10 +254,12 @@ def gmeth_test(msg, QQ, GroupID):
 
 #初始化
 
-customize = eval(open('./plugin/settings.json').read())
+customize = eval(open('./plugins/settings.json', encoding='utf-8').read())['customize']
 
 
 _cbk = customize.copy()
+for _c in _cbk.keys():
+    _cbk[_c] = globals()[_cbk[_c]]
 _initx = globals().copy()
 for _initn in _initx.keys():
     if _initn[:6] == "gmeth_" and type(_initx[_initn]).__name__=='function':
@@ -278,10 +275,10 @@ def Group(msg, QQ, GroupID):
     Menu(msg, QQ, GroupID)
     '''
     _cbk = _cbkl1.copy()
-    _initgb = glob.glob('./plugin/pfile/*.py')
+    _initgb = glob.glob('./plugins/pfile/*.py')
     for _initf in _initgb:
-        _initp = os.path.splitext(_initf)[0].split('/')[-1]
-        globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf).read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
+        _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
+        globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf, encoding='utf-8').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
         _cbk.update({_initp: globals().copy()[_initp]})
     for _stepx in _cbk.values():
         _stepx(msg, QQ, GroupID)
