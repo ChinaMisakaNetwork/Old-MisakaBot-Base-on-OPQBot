@@ -18,7 +18,7 @@ import sql
 f = open('./config.json')
 config = json.loads(f.read())
 f.close()
-POST = api.PostMsg(url=config['server'],botqq=config['botqq'])  
+POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -125,9 +125,8 @@ def Weather(msg, QQ, GroupID):
                 POST.GroupMsg(msg=zhconv.convert(rtst, {
                               True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=pbase)
 
-
 def Calc(msg, QQ, GroupID):
-    if msg.split()[0] == "/计算" and len(msg.split())>1 and len(msg.split())<4:
+    if msg.split()[0] == "/计算" and len(msg.split())>1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
         rmsg = msg[1:]
         def get_concat_v_blank(im1, im2, color=(255, 255, 255, 0)):
@@ -138,10 +137,11 @@ def Calc(msg, QQ, GroupID):
         def parse(s, e=True):
             return parse_expr(s, transformations=transformations, evaluate = e)
         expo = msg.split()[1]
-        if expo.lower() in ['解方程','因式分解','一般计算', 'alg', 'factor', 'calc']:
-            meth = {'解方程':0,'因式分解':1,'一般计算':2, 'alg':0, 'factor':1, 'calc':2}[expo.lower()]
+        msg = msg.split()
+        if expo.lower() in ['解方程','因式分解','一般计算', '画图', 'alg', 'factor', 'calc', 'plot]:
+            meth = {'解方程':0,'因式分解':1,'一般计算':2, '画图':3, 'alg':0, 'factor':1, 'calc':2, 'plot':3}[expo.lower()]
             msg = msg[1:]
-            exp = msg.split()[1]
+            exp = msg[1]
             exp2 = exp.replace("^","**").replace(" ","").split("=")
             if len(exp2) == 1:
                 if meth == 0:
@@ -151,14 +151,10 @@ def Calc(msg, QQ, GroupID):
                     POST.GroupMsg(msg= "请检查输入!", groupid = GroupID, picurl = 0, picbase = 0)
                     return
         else:
-            exp = msg.split()[1]
-            exp2 = exp.replace("^","**").replace(" ","").split("=")
-            if len(exp2) == 1:
-                meth = 2
-            else:
-                meth = 0
+            POST.GroupMsg(msg= "请检查输入!", groupid = GroupID, picurl = 0, picbase = 0)
+            return
         try:
-            u=msg.split()[2]
+            u=msg[2]
         except:
             u=None
         exp = exp.replace("^","**").replace(" ","")
@@ -166,7 +162,10 @@ def Calc(msg, QQ, GroupID):
         if meth == 2:
             try:
                 f = latex(parse(exp[0]))
-                with evaluate(False):
+                try:
+                    with evaluate(False):
+                        v = latex(parse(exp[0], False))
+                except:
                     v = latex(parse(exp[0], False))
                 u = v + "=" + f
                 img = base64.b64encode(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":u,"resolution":600,"color":"000000"}).text)['url']).read()).decode()
@@ -211,15 +210,75 @@ def Calc(msg, QQ, GroupID):
         elif meth == 1:
             try:
                 expres = parse(exp[0])
-                v = sympy.factor(expres)
-                b6e2 = request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":latex(v),"resolution":600,"color":"000000"}).text)['url'])
+                try:
+                    with evaluate(False):
+                        ov = latex(parse(exp[0]))
+                except:
+                    ov = latex(parse(exp[0]))
+                v = factor(expres)
+                b6e2 = request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":ov + '=' + latex(v),"resolution":600,"color":"000000"}).text)['url']).read()
                 POST.GroupMsg(msg = '解: '+str(v).replace("**", '^')+"\n[PICFLAG]", groupid=GroupID, picurl = 0, picbase = base64.encodebytes(b6e2).decode())
             except BaseException as e:
+                raise(e)
                 POST.GroupMsg(msg = "可能无法分解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+        elif meth == 3:
+            udata = msg[1:]
+            xy1 = []
+            xy2 = set()
+            xy3 = {}
+            if len(udata) < 2:
+                POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
+                return
+            try:
+                axis = int(udata[-1])
+            except ValueError:
+                POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
+                return
+            udata = udata[:-1]
+            for xyc1 in udata:
+                if '=' in xyc1:
+                    xtc = xyc1.split('=')
+                    if len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)> 2:
+                        POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                        return
+                    elif len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)==2:
+                        lt = list(parse(xtc[0]).free_symbols) + list(parse(xtc[1]).free_symbols)
+                        for n in lt:
+                            if n in xy3.keys():
+                                xy3[n].append(solve(Eq(parse(xtc[0]), parse(xtc[1])), n))
+                            else:
+                                xy3.update({n: [solve(Eq(parse(xtc[0]), parse(xtc[1])), n)]})
+                else:
+                    xy1.append(parse(xyc1))
+                    xy2.update(parse(xyc1).free_symbols)
+            if len(xy2)>1:
+                POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                return
+            else:
+                if len(xy3.keys())>2 or ((not list(xy2)[0] in xy3.keys()) and len(xy3.keys())>=1):
+                    POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                    return
+                try:
+                    x5 = list(xy3.keys())
+                    x5.remove(list(xy2)[0])
+                    if len(x5)!=1:
+                        POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                        return
+                    for x4 in xy3[x5[0]]:
+                        [xy1.append(x6) for x6 in x4]
+                except:
+                    pass
+            p1 = plot(xy1[0], (list(xy2)[0], -axis, axis), show=False)
+            [p1.append(plot(xy1[x7], (list(xy2)[0], -axis, axis), show=False)[0]) for x7 in range(1, len(xy1))]
+            iobuff= io.BytesIO()
+            p1.save(iobuff)
+            POST.GroupMsg(msg = '资讯: \n'+str(p1)+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = base64.b64encode(iobuff.getvalue()).decode())
         else:
-            return POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
 def Menu(msg, QQ, Group):
+    if msg.split()[0] != "/御坂菜单":
+        return
     cfg = eval(open("./plugins/settings.json", encoding='utf-8').read())['menu']
     uauser = []
     for item in cfg:
@@ -231,9 +290,9 @@ def Menu(msg, QQ, Group):
     else:
         unuser = uauser
     menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
-    if msg.split()[0] == "/御坂菜单" and len(msg.split())==1:
+    if len(msg.split())==1:
         POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
-    elif msg.split()[0] == "/御坂菜单":
+    else:
         try:
             mm = int(msg.split()[1])
             if mm > 0 and mm < len(unuser)+1:
