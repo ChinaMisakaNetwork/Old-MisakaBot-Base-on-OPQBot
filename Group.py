@@ -138,7 +138,7 @@ def Calc(msg, QQ, GroupID):
             return parse_expr(s, transformations=transformations, evaluate = e)
         expo = msg.split()[1]
         msg = msg.split()
-        if expo.lower() in ['解方程','因式分解','一般计算', '画图', 'alg', 'factor', 'calc', 'plot]:
+        if expo.lower() in ['解方程','因式分解','一般计算', '画图', 'alg', 'factor', 'calc', 'plot']:
             meth = {'解方程':0,'因式分解':1,'一般计算':2, '画图':3, 'alg':0, 'factor':1, 'calc':2, 'plot':3}[expo.lower()]
             msg = msg[1:]
             exp = msg[1]
