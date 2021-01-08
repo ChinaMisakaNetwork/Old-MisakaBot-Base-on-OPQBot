@@ -126,6 +126,37 @@ def Weather(msg, QQ, GroupID):
                 POST.GroupMsg(msg=zhconv.convert(rtst, {
                               True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=pbase)
 
+def hitokoto(msg,QQ,GroupID):
+    Mainurl = 'https://v1.hitokoto.cn/'
+    if msg.split(' ')[0] == "/名言":
+        Typelist = ['a','b','c','d','e','f','g','h','i','j','k','l']
+        Typelist2 = ['动画','漫画','游戏','文学','原创','来自网络','其他','影视','诗词','网易云','哲学','抖机灵']
+        
+        try:
+            Type = msg.split(' ')[1]
+        except:
+            POST.GroupMsg(msg='缺失参数',groupid=GroupID,picbase=0,picurl=0)
+            return
+
+        if Type == '类别':
+            POST.GroupMsg(msg=str(Typelist2),groupid=GroupID,picbase=0,picurl=0)
+            return
+                        
+        try:
+            CodeTypeindex = Typelist2.index(Type)
+        except:
+            POST.GroupMsg(msg='无此类别',groupid=GroupID,picbase=0,picurl=0)
+            return
+
+
+        CodeType = Typelist[CodeTypeindex]
+        jsonstr = json.loads(requests.get(Mainurl+f'?c={CodeType}').text)
+        if jsonstr['from_who'] == None:
+            saying = jsonstr['hitokoto']+'----'+jsonstr['from']
+        else:
+            saying = jsonstr['hitokoto']+'----'+jsonstr['from']+' '+jsonstr['from_who']
+        POST.GroupMsg(msg=saying,groupid=GroupID,picbase=0,picurl=0)
+
 def Calc(msg, QQ, GroupID):
     if msg.split()[0] == "/计算" and len(msg.split())>1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
