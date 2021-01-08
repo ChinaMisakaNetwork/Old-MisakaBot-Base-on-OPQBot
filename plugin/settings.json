@@ -2,6 +2,7 @@
   "menu":
   [
     {"desc": "查询天气", "help":"/查询天气 {城市名} {索引}", "priv":false, "callback":"Weather", "cmd":"/查询天气"},
+    {"desc": "计算", "help":"/计算 {计算方法(一般计算,解方程,因式分解,画图)} {算式}", "priv":false, "callback":"Calc", "cmd":"/计算"},
     {"desc": "登录哔哩哔哩", "help":"/御坂登录", "priv":false, "callback":"LoginBilibili", "cmd":"/御坂登录"},
     {"desc": "群管", "help":"/禁言 @某人 时间", "priv":true, "callback":"ShutUp", "cmd":"/禁言"},
     {"desc": "测试", "help":"/测试 [参数]", "priv":true, "callback":"gmeth_test", "cmd":"/测试"}
