@@ -4,8 +4,9 @@ import json
 import itertools
 import urllib
 import base64
+import api
 from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application
-from sympy import *
+from sympy import parse_expr,latex,evaluate,latex,Eq,solve,factor,plot
 from PIL import Image
 from urllib import request
 import requests
@@ -171,8 +172,8 @@ def Calc(msg, QQ, GroupID):
                 img = base64.b64encode(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":u,"resolution":600,"color":"000000"}).text)['url']).read()).decode()
                 POST.GroupMsg(msg = "结果: "+str(parse(exp[0]))+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = img)
             except BaseException as e:
-                raise e
                 POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                raise e
         elif meth == 0:
             try:
                 equat = Eq(parse(exp[0]), parse(exp[1]))
@@ -219,8 +220,8 @@ def Calc(msg, QQ, GroupID):
                 b6e2 = request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":ov + '=' + latex(v),"resolution":600,"color":"000000"}).text)['url']).read()
                 POST.GroupMsg(msg = '解: '+str(v).replace("**", '^')+"\n[PICFLAG]", groupid=GroupID, picurl = 0, picbase = base64.encodebytes(b6e2).decode())
             except BaseException as e:
-                raise(e)
                 POST.GroupMsg(msg = "可能无法分解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                raise(e)
         elif meth == 3:
             udata = msg[1:]
             xy1 = []
