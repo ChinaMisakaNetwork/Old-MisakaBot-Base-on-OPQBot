@@ -280,7 +280,7 @@ def Calc(msg, QQ, GroupID):
 def Menu(msg, QQ, Group):
     if msg.split()[0] != "/御坂菜单":
         return
-    cfg = eval(open("./plugins/settings.json", encoding='utf-8').read())['menu']
+    cfg = json.loads(open('./plugin/settings.json', encoding='utf-8').read())['menu']
     uauser = []
     for item in cfg:
         if not item["priv"]:
