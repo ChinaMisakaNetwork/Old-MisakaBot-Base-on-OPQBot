@@ -314,7 +314,7 @@ def gmeth_test(msg, QQ, GroupID):
 
 #初始化
 
-customize = eval(open('./plugins/settings.json', encoding='utf-8').read())['customize']
+customize = eval(open('./plugin/settings.json', encoding='utf-8').read())['customize']
 
 
 _cbk = customize.copy()
