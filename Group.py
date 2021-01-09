@@ -258,22 +258,23 @@ def Calc(msg, QQ, GroupID):
             xy1 = []
             xy2 = set()
             xy3 = {}
-            if len(udata) < 2:
+            if len(udata) < 3:
                 POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
                 return
             try:
                 axis = int(udata[-1])
+                symb = parse(udata[-2])
             except ValueError:
                 POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
                 return
-            udata = udata[:-1]
+            udata = udata[:-2]
             for xyc1 in udata:
                 if '=' in xyc1:
                     xtc = xyc1.split('=')
                     if len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)> 2:
                         POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
                         return
-                    elif len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)==2:
+                    elif len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)>=1:
                         lt = list(parse(xtc[0]).free_symbols) + list(parse(xtc[1]).free_symbols)
                         for n in lt:
                             if n in xy3.keys():
@@ -281,13 +282,13 @@ def Calc(msg, QQ, GroupID):
                             else:
                                 xy3.update({n: [solve(Eq(parse(xtc[0]), parse(xtc[1])), n)]})
                 else:
-                    xy1.append(parse(xyc1))
-                    xy2.update(parse(xyc1).free_symbols)
+                    POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                    return
             if len(xy2)>1:
                 POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
                 return
             else:
-                if len(xy3.keys())>2 or ((not list(xy2)[0] in xy3.keys()) and len(xy3.keys())>=1):
+                if len(xy3.keys())>2 or not (symb in xy3.keys()):
                     POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
                     return
                 try:
@@ -300,8 +301,11 @@ def Calc(msg, QQ, GroupID):
                         [xy1.append(x6) for x6 in x4]
                 except:
                     pass
-            p1 = plot(xy1[0], (list(xy2)[0], -axis, axis), show=False)
-            [p1.append(plot(xy1[x7], (list(xy2)[0], -axis, axis), show=False)[0]) for x7 in range(1, len(xy1))]
+            fsym = list(xy3.keys())
+            fsym.remove(symb)
+            xy8 = list(itertools.chain.from_iterable(xy3[fsym[0]]))
+            p1 = plot(xy8[0], (symb, -axis, axis), xlabel = str(symb), ylabel = str(fsym[0]), show=False)
+            [p1.append(plot(xy8[x7], (symb, -axis, axis), xlabel = str(symb), ylabel = str(fsym[0]), show=False)[0]) for x7 in range(1, len(xy8))]
             iobuff= io.BytesIO()
             p1.save(iobuff)
             POST.GroupMsg(msg = '资讯: \n'+str(p1)+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = base64.b64encode(iobuff.getvalue()).decode())
