@@ -17,6 +17,7 @@ import os
 import sql
 import matplotlib
 import threading
+import subprocess
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -160,6 +161,7 @@ def hitokoto(msg,QQ,GroupID):
         POST.GroupMsg(msg=saying,groupid=GroupID,picbase=0,picurl=0)
 
 def Calc(msg, QQ, GroupID):
+    msg = msg.replace("^", "**")
     if msg.split()[0] == "/计算" and len(msg.split())>1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
         rmsg = msg[1:]
@@ -306,14 +308,9 @@ def Calc(msg, QQ, GroupID):
             fsym = list(xy3.keys())
             fsym.remove(symb)
             xy8 = list(itertools.chain.from_iterable(xy3[fsym[0]]))
-            def plt_thread(arr, symbol, axis, xlabel, ylabel):
-                p1 = plot(arr[0], (symbol, -axis, axis), xlabel = xlabel, ylabel = ylabel, show=False)
-                [p1.append(plot(arr[x7], (symbol, -axis, axis), xlabel = xlabel, ylabel = ylabel, show=False)[0]) for x7 in range(1, len(arr))]
-                iobuff= io.BytesIO()
-                p1.save(iobuff)
-                POST.GroupMsg(msg = '资讯: \n'+str(p1)+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = base64.b64encode(iobuff.getvalue()).decode())
-                return None
-            threading.Thread(target=plt_thread, args = (xy8, symb, axis, str(symb), str(fsym[0]),)).start()
+            subs = [[str(x) for x in xy8], str(symb), axis, str(symb), str(fsym[0])]
+            res = eval(subprocess.getoutput("python ./plugin/Calc/Plot.py "+base64.b64encode(repr(subs).encode()).decode()))
+            POST.GroupMsg(msg = res[0], groupid = GroupID, picbase = res)
         else:
             POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
