@@ -6,7 +6,7 @@ class PostMsg:
         self.url = url
         self.botqq = botqq
 
-    def UserMsg(self, msg, to, picurl, picbase):
+    def UserMsg(self, msg, to, picurl=0, picbase=0):
         serverurl = self.url
         botqq = self.botqq
         url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
@@ -26,7 +26,7 @@ class PostMsg:
                 "POST", url, headers=headers, json=payload)
             return(response.text)
 
-    def GroupMsg(self, msg, groupid, picbase, picurl):
+    def GroupMsg(self, msg, groupid, picbase=0, picurl=0):
 
         serverurl = self.url
         botqq = self.botqq
@@ -58,7 +58,7 @@ class PostMsg:
         response = requests.request("POST", url, headers=headers, json=payload)
         return(response.text)
 
-    def TemporaryMsg(self, msg, to, groupid, picbase, picurl):
+    def TemporaryMsg(self, msg, to, groupid, picbase=0, picurl=0):
 
         serverurl = self.url
         botqq = self.botqq
@@ -79,7 +79,7 @@ class PostMsg:
                 "POST", url, headers=headers, json=payload)
             return(response.text)
 
-    def Announce(self, groupid, title, text, Pinned, Usewindow, tonewuser):
+    def Announce(self, groupid, title, text, Pinned=False, Usewindow=False, tonewuser=False):
         serverurl = self.url
         botqq = self.botqq
         url = serverurl+f'/v1/Group/Announce?qq={botqq}'
