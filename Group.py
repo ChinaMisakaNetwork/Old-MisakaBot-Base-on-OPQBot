@@ -129,32 +129,32 @@ def Weather(msg, QQ, GroupID):
 def hitokoto(msg,QQ,GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
     if msg.split(' ')[0] == "/名言":
-        Typelist = ['a','b','c','d','e','f','g','h','i','j','k','l']
-        Typelist2 = ['动画','漫画','游戏','文学','原创','来自网络','其他','影视','诗词','网易云','哲学','抖机灵']
+        
+        Typedict = {'动画': 'a', '漫画': 'b', '游戏': 'c', '文学': 'd', '原创': 'e', '来自网络': 'f', '其他': 'g', '影视': 'h', '诗词': 'i', '网易云': 'j', '哲学': 'k', '抖机灵': 'l'}
         
         try:
             Type = msg.split(' ')[1]
         except:
             POST.GroupMsg(msg='缺失参数',groupid=GroupID,picbase=0,picurl=0)
             return
-
+        
+        try:
+            numb = int(msg.split(' ')[2])
+        except:
+            numb = 1
+        
         if Type == '类别':
             POST.GroupMsg(msg="支持类别:\n"+"\n".join(Typelist2),groupid=GroupID,picbase=0,picurl=0)
             return
                         
         try:
-            CodeTypeindex = Typelist2.index(Type)
+            CodeType = Typedict[type]
         except:
             POST.GroupMsg(msg='无此类别',groupid=GroupID,picbase=0,picurl=0)
             return
-
-
-        CodeType = Typelist[CodeTypeindex]
+        
         jsonstr = json.loads(requests.get(Mainurl+f'?c={CodeType}').text)
-        if jsonstr['from_who'] == None:
-            saying = jsonstr['hitokoto']+'----'+jsonstr['from']
-        else:
-            saying = jsonstr['hitokoto']+'----'+jsonstr['from']+' '+jsonstr['from_who']
+        saying = '\n\n'.join([jsonstr['hitokoto']+'----'+jsonstr['from']+ ((' '+jsonstr['from_who']) if (jsonstr['from_who'] != None) else '') for x in range(numb)])
         POST.GroupMsg(msg=saying,groupid=GroupID,picbase=0,picurl=0)
 
 def Calc(msg, QQ, GroupID):
