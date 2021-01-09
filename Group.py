@@ -15,6 +15,7 @@ import glob
 import zhconv
 import os
 import sql
+import matplotlib
 
 f = open('./config.json')
 config = json.loads(f.read())
