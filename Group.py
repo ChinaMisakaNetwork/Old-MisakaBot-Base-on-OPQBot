@@ -16,6 +16,7 @@ import zhconv
 import os
 import sql
 import matplotlib
+import threading
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -305,11 +306,14 @@ def Calc(msg, QQ, GroupID):
             fsym = list(xy3.keys())
             fsym.remove(symb)
             xy8 = list(itertools.chain.from_iterable(xy3[fsym[0]]))
-            p1 = plot(xy8[0], (symb, -axis, axis), xlabel = str(symb), ylabel = str(fsym[0]), show=False)
-            [p1.append(plot(xy8[x7], (symb, -axis, axis), xlabel = str(symb), ylabel = str(fsym[0]), show=False)[0]) for x7 in range(1, len(xy8))]
-            iobuff= io.BytesIO()
-            p1.save(iobuff)
-            POST.GroupMsg(msg = '资讯: \n'+str(p1)+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = base64.b64encode(iobuff.getvalue()).decode())
+            def plt_thread(arr, symbol, axis, xlabel, ylabel):
+                p1 = plot(arr[0], (symbol, -axis, axis), xlabel = xlabel, ylabel = ylabel, show=False)
+                [p1.append(plot(arr[x7], (symbol, -axis, axis), xlabel = xlabel, ylabel = ylabel, show=False)[0]) for x7 in range(1, len(arr))]
+                iobuff= io.BytesIO()
+                p1.save(iobuff)
+                POST.GroupMsg(msg = '资讯: \n'+str(p1)+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = base64.b64encode(iobuff.getvalue()).decode())
+                return None
+            threading.Thread(target=plt_thread, args = (xy8, symb, axis, str(symb), str(fsym[0]),)).start()
         else:
             POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
