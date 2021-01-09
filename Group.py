@@ -139,7 +139,7 @@ def hitokoto(msg,QQ,GroupID):
             return
 
         if Type == '类别':
-            POST.GroupMsg(msg=str(Typelist2),groupid=GroupID,picbase=0,picurl=0)
+            POST.GroupMsg(msg="支持类别:\n"+"\n".join(Typelist2),groupid=GroupID,picbase=0,picurl=0)
             return
                         
         try:
