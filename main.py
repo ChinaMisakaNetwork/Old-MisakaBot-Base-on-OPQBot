@@ -99,7 +99,7 @@ def OnGroupMsgs(message):
         '''
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
-    if str(a.FromQQG) == loggroup:
+    if str(a.FromQQG) == loggroup and a.FromQQID !=robotqq:
         import time,sql
         time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{a.Content}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'

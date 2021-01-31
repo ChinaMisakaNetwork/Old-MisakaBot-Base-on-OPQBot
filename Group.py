@@ -27,7 +27,7 @@ loggroup = config['loggroup']
 
 def ShutUp(msg, QQ, GroupID):
     import json
-    if "/禁言" in msg and QQ != config['botqq']:
+    if "yb.jy" in msg and QQ != config['botqq']:
         Adminer = sql.read('SELECT * FROM Admin;')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
@@ -57,8 +57,8 @@ def ShutUp(msg, QQ, GroupID):
                           groupid=GroupID, picurl=0, picbase=0)
 
 def LoginBilibili(msg, QQ, GroupID):
-    if msg == msg.split()[0] == "/御坂登录":
-        POST.GroupMsg(msg='请私聊我发送“/御坂登录”登录哦',
+    if msg == msg.split()[0] == "yb.dl":
+        POST.GroupMsg(msg='请私聊我发送“yb.dl”登录哦',
                       groupid=GroupID, picurl=0, picbase=0)
 
 def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
@@ -79,7 +79,7 @@ def Weather(msg, QQ, GroupID):
         tflag = True
     else:
         tflag = False
-    if msg.split()[0] == "/查询天气" and len(msg.split()) < 4 and len(msg.split()) > 1:
+    if msg.split()[0] == "yb.tq" and len(msg.split()) < 4 and len(msg.split()) > 1:
         city = msg.split()[1].replace("'", "").lower().replace(' ', '')
         if '#' in city or '--' in city or '"' in city:
             POST.GroupMsg(msg=zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {
@@ -143,7 +143,7 @@ def Weather(msg, QQ, GroupID):
 
 def hitokoto(msg,QQ,GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
-    if msg.split(' ')[0] == "/名言":
+    if msg.split(' ')[0] == "yb.my":
         Typelist = ['a','b','c','d','e','f','g','h','i','j','k','l']
         Typelist2 = ['动画','漫画','游戏','文学','原创','来自网络','其他','影视','诗词','网易云','哲学','抖机灵']
 
@@ -174,7 +174,7 @@ def hitokoto(msg,QQ,GroupID):
 
 def Calc(msg, QQ, GroupID):
     msg = msg.replace("^", "**")
-    if msg.split()[0] == "/计算" and len(msg.split())>1:
+    if msg.split()[0] == "yb.js" and len(msg.split())>1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
         #rmsg = msg[1:]
         def get_concat_v_blank(im1, im2, color=(255, 255, 255, 0)):
@@ -327,7 +327,7 @@ def Calc(msg, QQ, GroupID):
             POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
 def Menu(msg, QQ, Group):
-    if msg.split()[0] != "/御坂菜单":
+    if msg.split()[0] != "yb.cd":
         return
     cfg = json.loads(open('./plugin/settings.json', encoding='utf-8').read())['menu']
     uauser = []
@@ -356,7 +356,7 @@ def Menu(msg, QQ, Group):
             raise
 
 def gmeth_test(msg, QQ, GroupID):
-    if msg.split()[0] == '/测试':
+    if msg.split()[0] == 'yb.test':
         ret = "OK\n参数: "+','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
 

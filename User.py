@@ -15,7 +15,7 @@ def LoginBilibili(msg, QQ):
     import login
     import time
     a = login.Login()
-    if msg == '/御坂登录':
+    if msg == 'yb.dl':
         base = a.newlogin()
         POST.UserMsg(msg='请在提示登录请求过期前(最少150秒)内使用哔哩哔哩客户端扫描登录二维码',
                      to=QQ, picurl=0, picbase=base)
