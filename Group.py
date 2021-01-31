@@ -31,20 +31,26 @@ def ShutUp(msg, QQ, GroupID):
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
-                time = json.loads(msg)['Content'].split(' ')[2]
+                shutuptime = json.loads(msg)['Content'].split(' ')[2]
             except:
                 POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                 return
-            POST.SetShutUpUser(qq=shutupuserid, time=time, groupid=GroupID)
+            POST.SetShutUpUser(qq=shutupuserid, time=shutuptime, groupid=GroupID)
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
-            if time != '0':
+            if shutuptime != '0':
                 sqllist = sql.read('SELECT * FROM Violation;')
                 if str(shutupuserid) in str(sqllist):
                     edtimes = sql.read(f'SELECT WarningTimes FROM Violation WHERE QQ="{shutupuserid}";')[0][0]
                     sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
                 else:
                     sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
+
+            import time
+            nowtime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+            sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
+            sql.write(sqlcode)
+            return
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
@@ -169,7 +175,7 @@ def Calc(msg, QQ, GroupID):
     msg = msg.replace("^", "**")
     if msg.split()[0] == "/计算" and len(msg.split())>1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
-        rmsg = msg[1:]
+        #rmsg = msg[1:]
         def get_concat_v_blank(im1, im2, color=(255, 255, 255, 0)):
             dst = Image.new('RGBA', (max(im1.width, im2.width), im1.height + im2.height + 50), color)
             dst.paste(im1, (0, 0))
