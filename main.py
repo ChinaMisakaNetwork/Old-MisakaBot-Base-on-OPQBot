@@ -15,6 +15,7 @@ f.close()
 
 robotqq = config['botqq']  # 机器人QQ号
 webapi = config['server']  # Webapi接口 http://127.0.0.1:8888
+loggroup = config['loggroup']
 sio = socketio.Client()
 
 
@@ -68,6 +69,7 @@ def OnGroupMsgs(message):
     a.MsgSeq 消息ID
     '''
     # ————————违规消息检测部分分割线————————
+    '''
     import sql
     import itertools
     Adminer = sql.read('SELECT * FROM Admin;')
@@ -94,10 +96,15 @@ def OnGroupMsgs(message):
             else:
                 Group.Block(Jiance['Data']['DetailResult'][0]['EvilLabel'], GroupID=a.FromQQG,
                             MsgSeq=a.MsgSeq, MsgRandom=a.MsgRandom, QQ=a.FromQQID, NickName=a.FromQQName)
-        # ————————违规消息检测部分分割线————————
-        # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
-        # Group.Group(msg=a.Content,QQ=a.FromQQID,GroupID=a.FromQQG)
-
+        '''
+    # ————————违规消息检测部分分割线————————
+    # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
+    Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+    if str(a.FromQQG) == loggroup:
+        import time,sql
+        time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{a.Content}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+        sql.write(sqlcode)
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
         return

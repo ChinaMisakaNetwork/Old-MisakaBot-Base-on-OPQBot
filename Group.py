@@ -37,6 +37,14 @@ def ShutUp(msg, QQ, GroupID):
                 return
             POST.SetShutUpUser(qq=shutupuserid, time=time, groupid=GroupID)
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
+
+            if time != '0':
+                sqllist = sql.read('SELECT * FROM Violation;')
+                if str(shutupuserid) in str(sqllist):
+                    edtimes = sql.read(f'SELECT WarningTimes FROM Violation WHERE QQ="{shutupuserid}";')[0][0]
+                    sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
+                else:
+                    sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
