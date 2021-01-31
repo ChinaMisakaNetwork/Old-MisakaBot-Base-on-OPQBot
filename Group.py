@@ -23,6 +23,7 @@ f = open('./config.json')
 config = json.loads(f.read())
 f.close()
 POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
+loggroup = config['loggroup']
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -45,12 +46,12 @@ def ShutUp(msg, QQ, GroupID):
                     sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
                 else:
                     sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
-
-            import time
-            nowtime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
-            sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
-            sql.write(sqlcode)
-            return
+            if str(GroupID) == loggroup:
+                import time
+                nowtime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+                sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
+                sql.write(sqlcode)
+                return
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
