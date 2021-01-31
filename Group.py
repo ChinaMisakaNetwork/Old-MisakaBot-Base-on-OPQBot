@@ -41,12 +41,10 @@ def ShutUp(msg, QQ, GroupID):
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
 
-
 def LoginBilibili(msg, QQ, GroupID):
     if msg == msg.split()[0] == "/御坂登录":
         POST.GroupMsg(msg='请私聊我发送“/御坂登录”登录哦',
                       groupid=GroupID, picurl=0, picbase=0)
-
 
 def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
     #Adminer = sql.read('SELECT * FROM Admin;')
@@ -58,7 +56,6 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
                       groupid=GroupID, picurl=0, picbase=0)
         POST.SetShutUpUser(
             qq=QQ, time=config['TextShutupTime'], groupid=GroupID)
-
 
 def Weather(msg, QQ, GroupID):
     oldmsg = msg
@@ -132,32 +129,32 @@ def Weather(msg, QQ, GroupID):
 def hitokoto(msg,QQ,GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
     if msg.split(' ')[0] == "/名言":
-        
-        Typedict = {'动画': 'a', '漫画': 'b', '游戏': 'c', '文学': 'd', '原创': 'e', '来自网络': 'f', '其他': 'g', '影视': 'h', '诗词': 'i', '网易云': 'j', '哲学': 'k', '抖机灵': 'l'}
-        
+        Typelist = ['a','b','c','d','e','f','g','h','i','j','k','l']
+        Typelist2 = ['动画','漫画','游戏','文学','原创','来自网络','其他','影视','诗词','网易云','哲学','抖机灵']
+
         try:
             Type = msg.split(' ')[1]
         except:
             POST.GroupMsg(msg='缺失参数',groupid=GroupID,picbase=0,picurl=0)
             return
-        
-        try:
-            numb = int(msg.split(' ')[2])
-        except:
-            numb = 1
-        
+
         if Type == '类别':
-            POST.GroupMsg(msg="支持类别:\n"+"\n".join(Typelist2),groupid=GroupID,picbase=0,picurl=0)
+            POST.GroupMsg(msg=str(Typelist2),groupid=GroupID,picbase=0,picurl=0)
             return
-                        
+
         try:
-            CodeType = Typedict[type]
+            CodeTypeindex = Typelist2.index(Type)
         except:
             POST.GroupMsg(msg='无此类别',groupid=GroupID,picbase=0,picurl=0)
             return
-        
+
+
+        CodeType = Typelist[CodeTypeindex]
         jsonstr = json.loads(requests.get(Mainurl+f'?c={CodeType}').text)
-        saying = '\n\n'.join([jsonstr['hitokoto']+'----'+jsonstr['from']+ ((' '+jsonstr['from_who']) if (jsonstr['from_who'] != None) else '') for x in range(numb)])
+        if jsonstr['from_who'] == None:
+            saying = jsonstr['hitokoto']+'----'+jsonstr['from']
+        else:
+            saying = jsonstr['hitokoto']+'----'+jsonstr['from']+' '+jsonstr['from_who']
         POST.GroupMsg(msg=saying,groupid=GroupID,picbase=0,picurl=0)
 
 def Calc(msg, QQ, GroupID):
@@ -342,6 +339,7 @@ def Menu(msg, QQ, Group):
                 POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
         except:
             raise
+
 def gmeth_test(msg, QQ, GroupID):
     if msg.split()[0] == '/测试':
         ret = "OK\n参数: "+','.join(msg.split()[1:])
