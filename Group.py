@@ -327,7 +327,7 @@ def Calc(msg, QQ, GroupID):
             POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
 
 def Menu(msg, QQ, Group):
-    if msg.split()[0] != "yb.cd":
+    if msg.split()[0] != "御坂菜单":
         return
     cfg = json.loads(open('./plugin/settings.json', encoding='utf-8').read())['menu']
     uauser = []
