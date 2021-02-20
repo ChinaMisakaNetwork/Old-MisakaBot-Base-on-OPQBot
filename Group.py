@@ -116,7 +116,7 @@ def Weather(msg, QQ, GroupID):
         ret += "\n程式所使用的API 仍然处于测试阶段, 瞬时温度准确率较差, 请以当地政府部门的数据为准。"
         POST.GroupMsg(msg=ret, groupid = GroupID, picurl = 0, picbase = pbase)
     msg = zhconv.convert(msg, "zh-hans")
-    if msg.split()[0] == "/查询天气" and len(msg.split()) < 3 and len(msg.split()) > 1:
+    if msg.split()[0] == "yb.tq" and len(msg.split()) < 3 and len(msg.split()) > 1:
         city = msg.split()[1].replace("'","").lower().replace(' ','')
         if '#' in city or '--' in city or '"' in city:
             POST.GroupMsg(msg = zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
