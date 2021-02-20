@@ -11,7 +11,7 @@
 群内功能提供三个参数(msg,QQ,GroupID)代表消息内容,发的人的QQ,群号并手动在setting.json内的customize项新增一个json值{"函数名": "变量名"}
 函数可以提供的操作(直接复制并传入参数就可以,不需要发送图片就picurl=0,picbase=0,这两参数都是可选,只需要传入一个就可以的,不用的参数就=0) 
 2. 在Group.py内撰写新函数并令变量名以gmeth_开头, 并预留3个参数位置传入消息, qq号以及群号
-3.: 在./plugin/pfile内新增一个python文件, 消息, qq号和群号将会以msg, QQ, GroupID为名的变量呈现。
+3. 在./plugin/pfile内新增一个python文件, 消息, qq号和群号将会以msg, QQ, GroupID为名的变量呈现。
 
 基本操作如下:
 1. 发送群消息
