@@ -1,7 +1,7 @@
 {
   "menu":
   [
-    {"desc": "查询天气", "help":"yb.tq {城市名} {索引}", "priv":false, "callback":"Weather", "cmd":"yb.tq"},
+    {"desc": "查询天气", "help":"yb.tq {城市名}", "priv":false, "callback":"Weather", "cmd":"yb.tq"},
     {"desc": "名言", "help":"yb.my {类别(此参数为'类别'就可以查询所有支持类别)}", "priv":false, "callback":"hitokoto", "cmd":"yb.my"},
     {"desc": "计算", "help":"yb.js {计算方法(一般计算,解方程,因式分解,画图)} {算式}", "priv":false, "callback":"Calc", "cmd":"yb.js"},
     {"desc": "登录哔哩哔哩(目前只有登录,其他功能正在开发ing)", "help":"yb.dl", "priv":false, "callback":"LoginBilibili", "cmd":"yb.dl"},
