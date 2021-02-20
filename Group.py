@@ -73,73 +73,78 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
             qq=QQ, time=config['TextShutupTime'], groupid=GroupID)
 
 def Weather(msg, QQ, GroupID):
-    oldmsg = msg
-    msg = zhconv.convert(msg, "zh-hans")
-    if msg != oldmsg:
-        tflag = True
-    else:
-        tflag = False
-    if msg.split()[0] == "yb.tq" and len(msg.split()) < 4 and len(msg.split()) > 1:
-        city = msg.split()[1].replace("'", "").lower().replace(' ', '')
-        if '#' in city or '--' in city or '"' in city:
-            POST.GroupMsg(msg=zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {
-                          True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
-            POST.GroupMsg(msg="QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n" +
-                          msg, groupid=872324801, picurl=0, picbase=0)
+    fakeflag = False
+    def print_weather(fakeflag):
+        if fakeflag:
+            cityid = sqlr3[0][2]
         else:
-            sqlr = sql.read('SELECT * FROM city WHERE cityZh = "' +
-                            city+'" or cityEn = "'+city+'"')
+            cityid = sqlr[0][2]
+        rawdata = json.loads(requests.get("http://www.worldweather.cn/zh/json/%d_zh.xml"%cityid).text)
+        rawndta = json.loads(requests.get("https://worldweather.wmo.int/en/json/present.xml").text)["present"]
+        for x in rawndta.keys():
+            if rawndta[x]['cityId'] == cityid:
+                usendta = rawndta[x]
+                break
+        nowtemp = usendta['temp']
+        nowrh = usendta['rh']
+        for x in rawdata["city"]["forecast"]["forecastDay"]:
+            if x["forecastDate"] == time.strftime("%Y-%m-%d"):
+                bfc=x
+                break
+        templow = bfc["minTemp"]
+        temphigh = bfc["maxTemp"]
+        dsc = bfc["weather"]
+        icon = str(bfc["weatherIcon"])[:-2]
+        ret = ""
+        if fakeflag:
+            ret += "找不到这个城市, 但是有1个相似记录\n也许你想找的是这个?\n\n"
+        ret +="%s的天气状况: \n"%rawdata["city"]["cityName"]
+        ret += "温度: "+str(nowtemp)+"℃ ("+str(templow)+"℃ - "+str(temphigh)+"℃)\n"
+        ret += "湿度: "+str(nowrh)+"%\n"
+        ret += dsc+"\n"
+        try:
+            picf = open("./plugin/weather/"+icon+".png", "rb").read()
+            pbase = base64.b64encode(picf).decode()
+            rtst += "\n[PICFLAG]"
+        except:
+            try:
+                picf = open("./plugin/weather/"+icon+"a.png", "rb").read()
+                pbase = base64.b64encode(picf).decode()
+                rtst += "\n[PICFLAG]"
+            except:
+                pbase = 0
+        ret += "\n程式所使用的API 仍然处于测试阶段, 瞬时温度准确率较差, 请以当地政府部门的数据为准。"
+        POST.GroupMsg(msg=ret, groupid = GroupID, picurl = 0, picbase = pbase)
+    msg = zhconv.convert(msg, "zh-hans")
+    if msg.split()[0] == "/查询天气" and len(msg.split()) < 3 and len(msg.split()) > 1:
+        city = msg.split()[1].replace("'","").lower().replace(' ','')
+        if '#' in city or '--' in city or '"' in city:
+            POST.GroupMsg(msg = zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 872324801 , picurl = 0, picbase = 0)
+        else:
+            sqlr = sql.read("select * from weather_city_list where 2layer = '"+city+"';")
             if len(sqlr) == 0:
-                sqlr2 = sql.read(
-                    'SELECT * FROM city WHERE provinceZh = "'+city+'" or provinceEn = "'+city+'"')
-                if len(sqlr2) > 0:
-                    POST.GroupMsg(msg=zhconv.convert("请输入具体城市名作为参数。属于"+sqlr2[0][4]+"省的城市有: \n"+", ".join([x[2] for x in sql.read(
-                        'SELECT * FROM city WHERE provinceZh="'+city+'" or provinceEn="'+city+'"')])+"。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
+                sqlr2 = sql.read("select * from weather_city_list where 1layer = '"+city+"';")
+                if len(sqlr2)>0:
+                    POST.GroupMsg(msg = "请输入具体城市名作为参数。可选列表: \n"+", ".join([x[1] for x in sql.read('SELECT * FROM weather_city_list WHERE 1layer="'+city+'"')]), groupid=GroupID, picurl=0, picbase=0)
+                    return 0
                 else:
-                    POST.GroupMsg(msg=zhconv.convert("无查询结果。\n请确认是否有错别字或者拼写错误。", {
-                                  True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
+                    sqlr3 = sql.read("select * from weather_city_list where 2layer like '%"+city+"%';")
+                    if len(sqlr3)==0:
+                        POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0)
+                        return 0
+                    elif len(sqlr3) == 1:
+                        print_weather(True)
+                    else:
+                        mess = "找不到这个城市, 但是有%d个相似记录\n"%len(sqlr3)
+                        mess+= "也许你要找的是: \n"
+                        mess+= "\n".join([sqlr3[x][1] for x in range(0, min(10, len(sqlr3)))])
+                        if len(mess)>10:
+                            mess+="\n等"
+                        POST.GroupMsg(msg = mess, groupid = GroupID, picurl = 0, picbase = 0)
+                        return 0
             else:
-                seindex = 0
-                if len(sqlr) > 1:
-                    try:
-                        seindex = int(msg.split()[2]) - 1
-                        if seindex < 0:
-                            POST.GroupMsg(msg=zhconv.convert("请提供一个大于0的数字作为索引。", {
-                                          True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
-                            return
-                        elif seindex > len(sqlr)-1:
-                            POST.GroupMsg(msg=zhconv.convert("索引超出检索范围，请检查索引。", {
-                                          True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
-                            return
-                    except ValueError:
-                        POST.GroupMsg(msg=zhconv.convert("请提供一个大于0的数字作为索引。", {
-                                      True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
-                        return
-                    except IndexError:
-                        POST.GroupMsg(msg=zhconv.convert("搜索字眼拥有多于1个匹配结果, 请把序号填入第三个参数中区分。\n"+"\n".join([str(x+1)+": "+sqlr[x][2]+" - "+sqlr[x][8]+" - "+sqlr[x][4] for x in range(
-                            len(sqlr))]), {True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=0)
-                        return
-                raw = json.loads(urllib.request.urlopen(
-                    "https://tianqiapi.com/api?version=v6&appid=18224395&appsecret=lgCc5VqI&cityid="+str(sqlr[seindex][0])).read())
-                rtst = sqlr[0][2]
-                if len(sqlr) > 1:
-                    rtst += " (%s)" % sqlr[seindex][4]
-                rtst += "的天气状况: \n"
-                rtst += "温度: " + \
-                    str(raw['tem'])+"℃ ("+str(raw['tem2']) + \
-                    "℃-"+str(raw['tem1'])+"℃)\n"
-                rtst += "湿度："+raw['humidity']+'\n'
-                rtst += raw['wea']+'\n'
-                rtst += "吹"+raw['win']+' '+raw['win_speed']
-                try:
-                    picf = open('./plugin/weather/' +
-                                raw['wea_img']+'.png', 'rb').read()
-                    pbase = base64.b64encode(picf).decode()
-                    rtst += '\n[PICFLAG]'
-                except:
-                    pbase = 0
-                POST.GroupMsg(msg=zhconv.convert(rtst, {
-                              True: "zh-hant", False: "zh-hans"}[tflag]), groupid=GroupID, picurl=0, picbase=pbase)
+                print_weather(False)
 
 def hitokoto(msg,QQ,GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
