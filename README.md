@@ -10,6 +10,7 @@ User Interface Language: English<br>
 The program connect to MySQL Server to get data<br>
 The user data should be store in WebAdmin<br>
 Details: <br>
+
 | QQ | Priv | Pass |
 |-----------------------------------------------------------------------|
 | Username in integer | Privilege in short/integer | SHA256(SHA256(Password)) |
