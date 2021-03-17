@@ -1,0 +1,116 @@
+object Form2: TForm2
+  Left = 434
+  Height = 272
+  Top = 186
+  Width = 180
+  Caption = 'Menu'
+  ClientHeight = 272
+  ClientWidth = 180
+  OnClose = FormClose
+  OnShow = FormShow
+  LCLVersion = '2.0.10.0'
+  object Label1: TLabel
+    Left = 4
+    Height = 15
+    Top = 8
+    Width = 60
+    Caption = 'Welcome, '
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 72
+    Height = 15
+    Top = 8
+    Width = 25
+    Caption = 'User'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 4
+    Height = 15
+    Top = 31
+    Width = 67
+    Caption = 'Your action:'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 3
+    Height = 25
+    Top = 48
+    Width = 170
+    Caption = 'Editing Admin User'
+    Enabled = False
+    TabOrder = 0
+  end
+  object Button2: TButton
+    Left = 3
+    Height = 25
+    Top = 72
+    Width = 170
+    Caption = 'Editing Console User'
+    Enabled = False
+    TabOrder = 1
+  end
+  object Button3: TButton
+    Left = 3
+    Height = 25
+    Top = 96
+    Width = 170
+    Caption = 'Check ShutUp Log'
+    Enabled = False
+    TabOrder = 2
+  end
+  object Button4: TButton
+    Left = 3
+    Height = 25
+    Top = 120
+    Width = 170
+    Caption = 'Check Violation Log'
+    Enabled = False
+    TabOrder = 3
+  end
+  object Button5: TButton
+    Left = 3
+    Height = 25
+    Top = 144
+    Width = 170
+    Caption = 'Check Chat Log'
+    Enabled = False
+    TabOrder = 4
+  end
+  object Button6: TButton
+    Left = 4
+    Height = 25
+    Top = 168
+    Width = 169
+    Caption = 'Check Bilibili Status'
+    Enabled = False
+    TabOrder = 5
+  end
+  object Button7: TButton
+    Left = 4
+    Height = 25
+    Top = 192
+    Width = 169
+    Caption = 'Edit Account Status'
+    TabOrder = 6
+  end
+  object Button8: TButton
+    Left = 4
+    Height = 25
+    Top = 216
+    Width = 169
+    Caption = 'Logout'
+    OnClick = Button8Click
+    TabOrder = 7
+  end
+  object Button9: TButton
+    Left = 3
+    Height = 25
+    Top = 240
+    Width = 170
+    Caption = 'Exit'
+    OnClick = Button9Click
+    TabOrder = 8
+  end
+end
