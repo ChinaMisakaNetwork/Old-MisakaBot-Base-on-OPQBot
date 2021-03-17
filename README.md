@@ -14,3 +14,11 @@ Details: <br>
 | QQ | Priv | Pass |
 |---------------------|----------------------------|--------------------------|
 | Username in integer | Privilege in short/integer | SHA256(SHA256(Password)) |
+
+# Privilege
+The Privilege is present as a number between 0 to 7
+and it can be split into 3 bit
+
+| 4 | 2 | 1 |
+|----------------|---------------------|----------------------|
+| Admin Settings | Bot Log (Within QQ) | Bot Log (Without QQ) |
