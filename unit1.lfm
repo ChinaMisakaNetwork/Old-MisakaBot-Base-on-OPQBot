@@ -1,13 +1,14 @@
 object Form1: TForm1
-  Left = 243
+  Left = 659
   Height = 177
-  Top = 276
+  Top = 348
   Width = 247
   Caption = 'Login'
   ClientHeight = 177
   ClientWidth = 247
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object Label1: TLabel
     Left = 8
@@ -52,7 +53,7 @@ object Form1: TForm1
   object Label3: TLabel
     Left = 8
     Height = 1
-    Top = 112
+    Top = 125
     Width = 1
     Font.Color = clRed
     ParentColor = False

@@ -1,7 +1,7 @@
 object Form2: TForm2
-  Left = 434
+  Left = 692
   Height = 272
-  Top = 186
+  Top = 293
   Width = 180
   Caption = 'Menu'
   ClientHeight = 272
@@ -93,6 +93,7 @@ object Form2: TForm2
     Top = 192
     Width = 169
     Caption = 'Edit Account Status'
+    OnClick = Button7Click
     TabOrder = 6
   end
   object Button8: TButton
@@ -112,5 +113,17 @@ object Form2: TForm2
     Caption = 'Exit'
     OnClick = Button9Click
     TabOrder = 8
+  end
+  object MySQL51Connection1: TMySQL51Connection
+    Connected = False
+    LoginPrompt = False
+    KeepConnection = False
+    SkipLibraryVersionCheck = False
+    Left = 152
+  end
+  object SQLQuery1: TSQLQuery
+    FieldDefs = <>
+    Params = <>
+    Left = 120
   end
 end

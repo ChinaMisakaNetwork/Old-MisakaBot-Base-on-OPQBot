@@ -33,6 +33,7 @@ type
     procedure Edit2KeyPress(Sender: TObject; var Key: char);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
 
   public
@@ -45,6 +46,8 @@ var
   query: TSQLQuery;
   transaction: TSQLTransaction;
   Priv: integer;
+  lft: integer;
+  top: integer;
 const
   st1: String= '81.6';
   st2: String= 'Mis';
@@ -106,7 +109,7 @@ begin
    end
    else Form1.Label2.Font.Color := clDefault;
    if (length(Form1.Edit2.Text)=0) or (length(Form1.Edit1.Text)=0) then exit();
-   if (pos(#39, Form1.Edit1.Text)>0) or (pos(#39, Form1.Edit2.Text)>0) then
+   if pos(#39, Form1.Edit1.Text)>0 then
    begin
      Form1.Label3.Caption := Format('%s%s%s', [Form1.Label3.Caption, 'Illegal Characters', #13#10]);
      exit();
@@ -133,13 +136,15 @@ begin
    begin
      Priv := query.FieldByName('Priv').AsInteger;
      Unit2.Priv := Priv;
-     Unit2.Username := StrToInt(Form1.Edit1.Text);
+     Unit2.Username := Form1.Edit1.Text;
      Form1.Edit1.Text := '';
      Form1.Edit2.Text := '';
      Form1.Label3.Caption := '';
      query.Free;
      conn.Free;
      Form1.hide();
+     Unit2.lft := Form1.Left;
+     Unit2.top := Form1.Top;
      Unit2.Form2.Show();
      exit();
    end;
@@ -150,6 +155,12 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 
+end;
+
+procedure TForm1.FormShow(Sender: TObject);
+begin
+  Form1.Top := top;
+  Form1.Left := lft;
 end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
