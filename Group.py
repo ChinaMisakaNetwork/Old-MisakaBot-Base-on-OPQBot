@@ -375,6 +375,9 @@ def loadphp(msg, QQ, GroupID, file):
     rt = subprocess.call(["php", file, base64.b64encode(msg), base64.b64encode(QQ), base64.b64encode(GroupID)])
     return rt
 
+def loadpy(msg, QQ, GroupID, file):
+    exec(open(file, 'r').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID})
+
 _cbk = customize.copy()
 for _c in _cbk.keys():
     _cbk[_c] = globals()[_cbk[_c]]
@@ -396,7 +399,7 @@ def Group(msg, QQ, GroupID):
     _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
-        globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf, encoding='utf-8').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
+        globals().update({_initp:(lambda msg, QQ, GroupID: loadpy(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
     _initphp = glob.glob('./plugin/php/*.php')
     for _initf in _initphp:
