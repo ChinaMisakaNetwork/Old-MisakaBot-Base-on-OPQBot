@@ -393,12 +393,12 @@ def Group(msg, QQ, GroupID):
     Menu(msg, QQ, GroupID)
     '''
     _cbk = _cbkl1.copy()
-    _initgb = glob.glob('./plugins/pfile/*.py')
+    _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
         globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf, encoding='utf-8').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
         _cbk.update({_initp: globals().copy()[_initp]})
-    _initphp = glob.glob('./plugins/php/*.php')
+    _initphp = glob.glob('./plugin/php/*.php')
     for _initf in _initphp:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
         globals().update({_initp:(lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
