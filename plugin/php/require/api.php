@@ -1,3 +1,4 @@
+require 'sql.php';
 $msg = $argv[1];
 $qq = $argv[2];
 $grp = $argv[3];
@@ -177,4 +178,14 @@ function CheHui($GroupID, $MsgSeq, $MsgRandom){
   );
   $response = Http_Request("POST", $url, json_encode($payload));
   return $response;
+}
+function GetUserBilibili(int $qq){
+  $qq = strval($qq);
+  $result = $read_fetch_array('select * from bilibili where QQ="'+$qq+'";');
+  if (sizeof($result) < 1){
+    return null;
+  }
+  else {
+    return array("csrf" => $result[0][1], "cookie" => $result[0][2]);
+  }
 }
