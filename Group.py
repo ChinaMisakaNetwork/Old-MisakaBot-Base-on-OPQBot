@@ -371,6 +371,9 @@ def gmeth_test(msg, QQ, GroupID):
 
 customize = json.loads(open('./plugin/settings.json', encoding='utf-8').read())['customize']
 
+def loadphp(msg, QQ, GroupID, file):
+    rt = subprocess.call(["php", file, base64.b64encode(msg), base64.b64encode(QQ), base64.b64encode(GroupID)])
+    return rt
 
 _cbk = customize.copy()
 for _c in _cbk.keys():
@@ -394,6 +397,11 @@ def Group(msg, QQ, GroupID):
     for _initf in _initgb:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
         globals().update({_initp:(lambda msg, QQ, GroupID: exec(open(_initf, encoding='utf-8').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID}))})
+        _cbk.update({_initp: globals().copy()[_initp]})
+    _initphp = glob.glob('./plugins/php/*.php')
+    for _initf in _initphp:
+        _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
+        globals().update({_initp:(lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
     for _stepx in _cbk.values():
         _stepx(msg, QQ, GroupID)
