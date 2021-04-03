@@ -1,7 +1,7 @@
 require 'sql.php';
-$msg = $argv[1];
-$qq = $argv[2];
-$grp = $argv[3];
+$msg = base64_decode($argv[1]);
+$qq = base64_decode($argv[2]);
+$grp = base64_decode($argv[3]);
 $config = fopen("../../../config.json", "r");
 $configarr = fread($config,filesize("../../../config.json"));
 fclose($config);
