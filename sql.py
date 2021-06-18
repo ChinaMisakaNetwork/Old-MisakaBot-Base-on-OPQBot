@@ -1,10 +1,11 @@
 # 导入pymysql模块
 import pymysql
-# 定义数据库连接
-host = '81.68.245.129'
-user = 'MisakaNetwork'
-password = 'MisakaNetwork'
-database = 'MisakaNetwork'
+#定义数据库连接
+#请自行更改以下服务器相关信息
+host = 'host ip'
+user = 'database user name'
+password = 'database password'
+database = 'database name'
 charset = 'utf8'
 # 连接database
 
