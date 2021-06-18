@@ -1,6 +1,7 @@
 {
-    "botqq":2502515980,
-    "server":"http://127.0.0.1:8888",
-    "TextShutupTime":10,
-    "WarningTimes":3
+  "botqq": 2502515980,
+  "server": "http://127.0.0.1:8888",
+  "TextShutupTime": 10,
+  "WarningTimes": 1,
+  "loggroup":"872324801"
 }
