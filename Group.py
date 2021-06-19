@@ -393,24 +393,31 @@ def Blockbyman(msg, QQ, GroupID):
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
-                newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgse))
+                totalnum = 0
                 fg = 0
-                print("newl", newl)
-                for x in newl:
-                    idr = x[0]
-                    msgseqr = x[1]
-                    msgranr = x[2]
-                    if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
-                        POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                        sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
-                    else:
-                        fg += 1
+                def rec_dele(msgseqrec):
+                    global totalnum, fg
+                    newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgseqrec))
+                    totalnum += len(newl)
+                    print("newl", newl)
+                    for x in newl:
+                        idr = x[0]
+                        msgseqr = x[1]
+                        msgranr = x[2]
+                        if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                            POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                            sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                        else:
+                            fg += 1
+                    for x in newl:
+                        rec_dele(x[1])
+                rec_dele(msgse)
                 tmsg = ""
                 if flag1:
                     tmsg += '撤回成功'
                 else:
                     tmsg += '消息已被发送者本人撤回'
-                if len(newl) == 0:
+                if totalnum == 0:
                     tmsg += '。'
                 else:
                     if not fg:
@@ -451,24 +458,31 @@ def Blockbyman(msg, QQ, GroupID):
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
-                    newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={MsgSeq}')
-                    print('newlist', newlist)
+                    totalnum = 0
                     fg = 0
-                    for x in newlist:
-                        idr = x[0]
-                        msgseqr = x[1]
-                        msgranr = x[2]
-                        if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
-                            POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                            sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
-                        else:
-                            fg += 1
+                    def rec_del(msgs):
+                        global totalnum, fg
+                        newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
+                        print('recur', newlist)
+                        totalnum += len(newlist)
+                        for x in newlist:
+                            idr = x[0]
+                            msgseqr = x[1]
+                            msgranr = x[2]
+                            if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                                POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                                sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                            else:
+                                fg += 1
+                        for x in newlist:
+                            rec_del(x[1])
+                    rec_del(MsgSeq)
                     tmsg = ""
                     if flagc:
                         tmsg += '撤回成功'
                     else:
                         tmsg += '消息已被发送者本人撤回'
-                    if len(newlist) == 0:
+                    if totalnum == 0:
                         tmsg += '。'
                     else:
                         if not fg:
