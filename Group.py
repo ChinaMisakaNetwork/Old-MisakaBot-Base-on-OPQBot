@@ -376,7 +376,7 @@ def gmeth_test(msg, QQ, GroupID):
 def Blockbyman(msg, QQ, GroupID):
     try:
         json_parsing = json.loads(msg)
-        if json_parsing["Content"].split()[0] == "yb.ch":
+        if "yb.ch" in json_parsing["Content"]:
             adminlist = sql.read('select * from Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
                 msgse = json_parsing["MsgSeq"]
