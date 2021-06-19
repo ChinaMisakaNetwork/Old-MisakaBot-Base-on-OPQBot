@@ -130,7 +130,6 @@ def OnEvents(message):
 def main():
     try:
         sio.connect(webapi, transports=['websocket'])
-        # pdb.set_trace() #这是断点
         sio.wait()
     except BaseException as e:
         logging.info(e)
