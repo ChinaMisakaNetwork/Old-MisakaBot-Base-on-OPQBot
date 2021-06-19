@@ -148,7 +148,6 @@ def OnEvents(message):
     except:
         pass
     message1 = str(message).replace('"',r'\"')
-    print(f'INSERT INTO eventlog VALUES (\"{message1}\");')
     sql.write(f'INSERT INTO eventlog (text) VALUES (\"{message1}\");')
     print(message)
 
