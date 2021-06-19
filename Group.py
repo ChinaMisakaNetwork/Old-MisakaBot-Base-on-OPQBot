@@ -384,15 +384,18 @@ def Blockbyman(msg, QQ, GroupID):
                 msg_dt2 = sql.read('select msgran, id from log where msgseq='+str(msgse)+';')[0]
                 msgran = msg_dt2[0]
                 idmsg = msg_dt2[1]
+                print("DT2", msg_dt2)
+                print("Ran", msgran, "id", idmsg)
                 if not sql.read('select Chehui from log where id='+str(idmsg))[0][0]:
                     POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={idmsg};')
                     flag1 = True
                 else:
                     flag1 = False
+                print("Rollback status", flag1)
                 newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgse))
                 fg = 0
-                print(newl)
+                print("newl", newl)
                 for x in newl:
                     idr = x[0]
                     msgseqr = x[1]
@@ -445,9 +448,11 @@ def Blockbyman(msg, QQ, GroupID):
                         flagc = True
                     else:
                         flagc = False
+                    print("rollback status 2", flagc)
+                    print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
                     newlist = sql.read(f'select Chehui from log where Replyseq={MsgSeq}')
-                    print(newlist)
+                    print('newlist', newlist)
                     fg = 0
                     for x in newlist:
                         idr = x[0]
