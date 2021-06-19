@@ -2,10 +2,10 @@
 import pymysql
 #定义数据库连接
 #请自行更改以下服务器相关信息
-host = 'host ip'
-user = 'database user name'
-password = 'database password'
-database = 'database name'
+host = '81.68.245.129'
+user = 'misakanetwork'
+password = 'ZXC741 ASD852 QWE963'
+database = 'misakanetwork'
 charset = 'utf8'
 # 连接database
 

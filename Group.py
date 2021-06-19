@@ -33,25 +33,32 @@ def ShutUp(msg, QQ, GroupID):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
                 shutuptime = json.loads(msg)['Content'].split(' ')[2]
+                if shutuptime == '':
+                    POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                    return
             except:
                 POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                 return
             POST.SetShutUpUser(qq=shutupuserid, time=shutuptime, groupid=GroupID)
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
+            
             if shutuptime != '0':
                 sqllist = sql.read('SELECT * FROM Violation;')
+                print(sqllist)
                 if str(shutupuserid) in str(sqllist):
                     edtimes = sql.read(f'SELECT WarningTimes FROM Violation WHERE QQ="{shutupuserid}";')[0][0]
                     sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
                 else:
                     sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
+            
             if str(GroupID) == loggroup:
                 import time
-                nowtime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+                nowtime=time.strftime("%Y%m%d%H%M%S",time.localtime())
                 sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
                 sql.write(sqlcode)
                 return
+                
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
