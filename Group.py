@@ -375,34 +375,100 @@ def gmeth_test(msg, QQ, GroupID):
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
 
 def Blockbyman(msg, QQ, GroupID):
-    if "yb.ch" in msg and QQ != config['botqq']:
-        Adminer = sql.read('SELECT * FROM Admin;')
-        if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
-            
-            try:
-                msgid = msg.split(' ')[1]
-                if msgid == '':
+    try:
+        json_parsing = json.loads(msg)
+        if json_parsing["Content"].split()[0] == "yb.ch":
+            adminlist = sql.read('select * from Admin;')
+            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+                msgse = json_parsing["MsgSeq"]
+                msg_dt2 = sql.read('select msgran, id from log where msgseq='+str(msgse)+';')[0]
+                msgran = msg_dt2[0]
+                idmsg = msg_dt2[1]
+                if not sql.read('select Chehui from log where id='+str(idmsg))[0][0]:
+                    POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
+                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={idmsg};')
+                    flag1 = True
+                else:
+                    flag1 = False
+                newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgse))
+                fg = 0
+                for x in newl:
+                    idr = x[0]
+                    msgseqr = x[1]
+                    msgranr = x[2]
+                    if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                        POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                        sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                    else:
+                        fg += 1
+                tmsg = ""
+                if flag1:
+                    tmsg += '撤回成功'
+                else:
+                    tmsg += '消息已被发送者本人撤回'
+                if len(newl) == 0:
+                    tmsg += '。'
+                else:
+                    if not fg:
+                        tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
+                    else:
+                        tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
+            else:
+                POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
+    except ValueError:
+        if "yb.ch" in msg and QQ != config['botqq']:
+            Adminer = sql.read('SELECT * FROM Admin;')
+            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+
+                try:
+                    msgid = msg.split(' ')[1]
+                    if msgid == '':
+                        POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                        return
+
+                except:
                     POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                     return
 
-            except:
-                POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
-                return
-            
-            msglist = sql.read(f'SELECT msgseq,msgran FROM log WHERE id={msgid}')
-            if msglist == ():
-                POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
-                return
-            else:
-                chehui = sql.read(f'SELECT Chehui FROM log WHERE id={msgid}')[0][0]
-                if chehui == 0 :
-                    MsgSeq = msglist[0][0]
-                    MsgRandom = msglist[0][1]
-                    POST.CheHui(GroupID=GroupID, MsgSeq=MsgSeq, MsgRandom=MsgRandom)
-                    POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
-                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
+                msglist = sql.read(f'SELECT msgseq,msgran FROM log WHERE id={msgid}')
+                if msglist == ():
+                    POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
+                    return
                 else:
-                    POST.GroupMsg(msg='消息已被撤回', groupid=GroupID, picurl=0, picbase=0)
+                    chehui = sql.read(f'SELECT Chehui FROM log WHERE id={msgid}')[0][0]
+                    if chehui == 0 :
+                        MsgSeq = msglist[0][0]
+                        MsgRandom = msglist[0][1]
+                        POST.CheHui(GroupID=GroupID, MsgSeq=MsgSeq, MsgRandom=MsgRandom)
+                        flagc = True
+                    else:
+                        flagc = False
+                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
+                    newlist = sql.read(f'select Chehui from log where Replyseq={MsgSeq}')
+                    fg = 0
+                    for x in newlist:
+                        idr = x[0]
+                        msgseqr = x[1]
+                        msgranr = x[2]
+                        if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                            POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                            sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                        else:
+                            fg += 1
+                    tmsg = ""
+                    if flagc:
+                        tmsg += '撤回成功'
+                    else:
+                        tmsg += '消息已被发送者本人撤回'
+                    if len(newlist) == 0:
+                        tmsg += '。'
+                    else:
+                        if not fg:
+                            tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
+                        else:
+                            tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                    POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
             
 #函数区结束
 
