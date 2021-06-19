@@ -105,9 +105,10 @@ def OnGroupMsgs(message):
     if str(a.FromQQG) == loggroup and a.FromQQID !=robotqq:
         import time,sql
         time=time.strftime("%Y%m%d%H%M%S", time.localtime())
-        msg = json.loads(a.Content)
+
 
         try:
+            msg = json.loads(a.Content)
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
                 msg = a.Content.replace('"',r'\"')
