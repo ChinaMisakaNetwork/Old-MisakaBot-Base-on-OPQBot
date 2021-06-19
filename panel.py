@@ -3,9 +3,9 @@ from flask_cors import CORS
 import pymysql
 
 host = '81.68.245.129'
-user = 'MisakaNetwork'
-password = 'MisakaNetwork'
-database = 'MisakaNetwork'
+user = 'misakanetwork'
+password = 'ZXC741 ASD852 QWE963'
+database = 'misakanetwork'
 charset = 'utf8'
 
 

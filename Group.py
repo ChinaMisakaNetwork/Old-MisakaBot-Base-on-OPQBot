@@ -25,6 +25,9 @@ f.close()
 POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
 loggroup = config['loggroup']
 
+#函数区开始
+#Weather死了(数据库没了)
+
 def ShutUp(msg, QQ, GroupID):
     import json
     if "yb.jy" in msg and QQ != config['botqq']:
