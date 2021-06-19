@@ -392,6 +392,7 @@ def Blockbyman(msg, QQ, GroupID):
                     flag1 = False
                 newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgse))
                 fg = 0
+                print(newl)
                 for x in newl:
                     idr = x[0]
                     msgseqr = x[1]
@@ -446,6 +447,7 @@ def Blockbyman(msg, QQ, GroupID):
                         flagc = False
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
                     newlist = sql.read(f'select Chehui from log where Replyseq={MsgSeq}')
+                    print(newlist)
                     fg = 0
                     for x in newlist:
                         idr = x[0]
