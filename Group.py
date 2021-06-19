@@ -48,7 +48,6 @@ def ShutUp(msg, QQ, GroupID):
             
             if shutuptime != '0':
                 sqllist = sql.read('SELECT * FROM Violation;')
-                print(sqllist)
                 if str(shutupuserid) in str(sqllist):
                     edtimes = sql.read(f'SELECT WarningTimes FROM Violation WHERE QQ="{shutupuserid}";')[0][0]
                     sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
