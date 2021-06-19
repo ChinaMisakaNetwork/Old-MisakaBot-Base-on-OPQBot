@@ -451,7 +451,7 @@ def Blockbyman(msg, QQ, GroupID):
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
-                    newlist = sql.read(f'select Chehui from log where Replyseq={MsgSeq}')
+                    newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={MsgSeq}')
                     print('newlist', newlist)
                     fg = 0
                     for x in newlist:
