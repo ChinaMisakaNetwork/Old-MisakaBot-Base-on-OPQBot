@@ -378,7 +378,7 @@ def Blockbyman(msg, QQ, GroupID):
         json_parsing = json.loads(msg)
         if "yb.ch" in json_parsing["Content"]:
             adminlist = sql.read('select * from Admin;')
-            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in adminlist])):
                 msgse = json_parsing["MsgSeq"]
                 msg_dt2 = sql.read('select msgran, id from log where msgseq='+str(msgse)+';')[0]
                 msgran = msg_dt2[0]
