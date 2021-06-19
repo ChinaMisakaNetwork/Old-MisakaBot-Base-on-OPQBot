@@ -393,10 +393,7 @@ def Blockbyman(msg, QQ, GroupID):
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
-                totalnum = 0
-                fg = 0
-                def rec_dele(msgseqrec):
-                    global totalnum, fg
+                def rec_dele(msgseqrec, totalnum=0, fg=0):
                     newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgseqrec))
                     totalnum += len(newl)
                     print("newl", newl)
@@ -410,8 +407,13 @@ def Blockbyman(msg, QQ, GroupID):
                         else:
                             fg += 1
                     for x in newl:
-                        rec_dele(x[1])
-                rec_dele(msgse)
+                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg)
+                        totalnum += arr[0]
+                        fg += arr[1]
+                    return [totalnum, fg]
+                arr2 = rec_dele(msgse)
+                totalnum = arr2[0]
+                fg = arr2[1]
                 tmsg = ""
                 if flag1:
                     tmsg += '撤回成功'
@@ -458,10 +460,7 @@ def Blockbyman(msg, QQ, GroupID):
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
                     sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
-                    totalnum = 0
-                    fg = 0
-                    def rec_del(msgs):
-                        global totalnum, fg
+                    def rec_del(msgs, totalnum=0, fg=0):
                         newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
                         print('recur', newlist)
                         totalnum += len(newlist)
@@ -475,8 +474,13 @@ def Blockbyman(msg, QQ, GroupID):
                             else:
                                 fg += 1
                         for x in newlist:
-                            rec_del(x[1])
-                    rec_del(MsgSeq)
+                            arr3 = rec_del(x[1])
+                            totalnum += arr3[0]
+                            fg += arr3[1]
+                        return [totalnum, fg]
+                    arr4 = rec_del(MsgSeq)
+                    totalnum = arr4[0]
+                    fg = arr4[1]
                     tmsg = ""
                     if flagc:
                         tmsg += '撤回成功'
