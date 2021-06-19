@@ -375,6 +375,36 @@ def gmeth_test(msg, QQ, GroupID):
         ret = "OK\n参数: "+','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
 
+def Blockbyman(msg, QQ, GroupID):
+    if "yb.ch" in msg and QQ != config['botqq']:
+        Adminer = sql.read('SELECT * FROM Admin;')
+        if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+            
+            try:
+                msgid = msg.split(' ')[1]
+                if msgid == '':
+                    POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                    return
+
+            except:
+                POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                return
+            
+            msglist = sql.read(f'SELECT msgseq,msgran FROM log WHERE id={msgid}')
+            if msglist == ():
+                POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
+                return
+            else:
+                chehui = sql.read(f'SELECT Chehui FROM log WHERE id={msgid}')[0][0]
+                if chehui == 0 :
+                    MsgSeq = msglist[0][0]
+                    MsgRandom = msglist[0][1]
+                    POST.CheHui(GroupID=GroupID, MsgSeq=MsgSeq, MsgRandom=MsgRandom)
+                    POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
+                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
+                else:
+                    POST.GroupMsg(msg='消息已被撤回', groupid=GroupID, picurl=0, picbase=0)
+            
 #函数区结束
 
 #初始化

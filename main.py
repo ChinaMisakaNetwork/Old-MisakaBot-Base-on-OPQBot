@@ -8,6 +8,8 @@ import re
 import Text
 import Group
 import User
+import sql
+
 
 f = open('./config.json')
 config = json.loads(f.read())
@@ -99,13 +101,14 @@ def OnGroupMsgs(message):
         '''
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
-    '''
+    
     if str(a.FromQQG) == loggroup and a.FromQQID !=robotqq:
         import time,sql
-        time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{a.Content}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+        time=time.strftime("%Y%m%d%H%M%S", time.localtime())
+        msg = a.Content.replace('"',r'\"')
+        sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
         sql.write(sqlcode)
-    '''
+    
     Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
     
     te = re.search(r'\#(.*)', str(a.Content))
@@ -127,6 +130,16 @@ def OnFriendMsgs(message):
 @sio.on('OnEvents')
 def OnEvents(message):
     ''' 监听相关事件'''
+    try:
+        if message['CurrentPacket']['Data']["EventMsg"]["Content"] == '群成员撤回消息事件':
+            msgseq = message['CurrentPacket']['Data']['EventData']['MsgSeq']
+            msgran = message['CurrentPacket']['Data']['EventData']['MsgRandom']
+            sql.write(f'UPDATE log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
+    except:
+        pass
+    message1 = str(message).replace('"',r'\"')
+    print(f'INSERT INTO eventlog VALUES (\"{message1}\");')
+    sql.write(f'INSERT INTO eventlog (text) VALUES (\"{message1}\");')
     print(message)
 
 

@@ -6,7 +6,8 @@
     {"desc": "计算", "help":"yb.js {计算方法(一般计算,解方程,因式分解,画图)} {算式}", "priv":false, "callback":"Calc", "cmd":"yb.js"},
     {"desc": "登录哔哩哔哩(目前只有登录,其他功能正在开发ing)", "help":"yb.dl", "priv":false, "callback":"LoginBilibili", "cmd":"yb.dl"},
     {"desc": "群管", "help":"yb.jy @某人 时间", "priv":true, "callback":"ShutUp", "cmd":"yb.jy"},
-    {"desc": "测试", "help":"yb.test [参数]", "priv":true, "callback":"gmeth_test", "cmd":"yb.test"}
+    {"desc": "测试", "help":"yb.test [参数]", "priv":true, "callback":"gmeth_test", "cmd":"yb.test"},
+    {"desc": "撤回", "help":"yb.ch [消息id]", "priv":true, "callback":"Blockbyman", "cmd":"yb.ch"}
   ],
   "customize":
   {
@@ -15,6 +16,7 @@
     "LoginBilibili": "LoginBilibili",
     "Calc": "Calc",
     "Menu": "Menu",
-    "Hitokoto":"hitokoto"
+    "Hitokoto":"hitokoto",
+    "Blockbyman":"Blockbyman"
   }
 }
