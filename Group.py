@@ -367,7 +367,7 @@ def Menu(msg, QQ, Group):
                 mr = me + ' ' + " ".join(mg)
                 unuser[mm-1]['callback'](mr, QQ, Group)
             else:
-                POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
+                POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
         except:
             raise
 
