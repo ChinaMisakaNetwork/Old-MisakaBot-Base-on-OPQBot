@@ -357,7 +357,7 @@ def Menu(msg, QQ, Group):
         unuser = uauser
     menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
     if len(msg.split())==1:
-        POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
+        POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
     else:
         try:
             mm = int(msg.split()[1])
