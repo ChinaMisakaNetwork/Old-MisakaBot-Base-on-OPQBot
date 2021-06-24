@@ -118,7 +118,7 @@ def OnGroupMsgs(message):
             sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
             sql.write(sqlcode)
     
-    Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+        Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
     
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
