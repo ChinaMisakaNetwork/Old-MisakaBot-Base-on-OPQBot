@@ -5,7 +5,6 @@ import time
 import socket
 import logging
 import re
-import Text
 import Group
 import User
 import sql

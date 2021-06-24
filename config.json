@@ -1,13 +1,13 @@
 {
   "BotConfig":{
       "botqq":190532241,
-      "server":"http://81.68.245.129:8888",
+      "server":"http://127.0.0.1:8888",
       "TextShutupTime":10,
       "WarningTimes":1,
       "MasterGroup":"674125918"
   },
   "ServerConfig":{
-      "MySQLHost":"81.68.245.129",
+      "MySQLHost":"127.0.0.1",
       "MySQLUser":"misakanetwork",
       "MySQLPassword":"ZXC741 ASD852 QWE963",
       "MySQLDataBase":"misakanetwork"
