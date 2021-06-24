@@ -12,12 +12,12 @@ import sql
 
 
 f = open('./config.json')
-config = json.loads(f.read())
+config = json.loads(f.read())['BotConfig']
 f.close()
 
 robotqq = config['botqq']  # 机器人QQ号
 webapi = config['server']  # Webapi接口 http://127.0.0.1:8888
-loggroup = config['loggroup']
+MasterGroup = config['MasterGroup']
 sio = socketio.Client()
 
 
@@ -102,7 +102,7 @@ def OnGroupMsgs(message):
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
     
-    if str(a.FromQQG) == loggroup and a.FromQQID !=robotqq:
+    if str(a.FromQQG) == MasterGroup and a.FromQQID !=robotqq:
         import time,sql
         time=time.strftime("%Y%m%d%H%M%S", time.localtime())
 

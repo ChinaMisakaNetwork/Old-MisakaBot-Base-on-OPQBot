@@ -5,7 +5,7 @@ import json
 import sql
 
 f = open('./config.json')
-config = json.loads(f.read())
+config = json.loads(f.read())['BotConfig']
 f.close()
 POST = api.PostMsg(url=config['server'], botqq=config['botqq'])
 #初始化#

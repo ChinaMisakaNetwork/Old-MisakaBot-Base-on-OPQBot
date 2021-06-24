@@ -20,10 +20,10 @@ import threading
 import subprocess
 
 f = open('./config.json')
-config = json.loads(f.read())
+config = json.loads(f.read())['BotConfig']
 f.close()
 POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
-loggroup = config['loggroup']
+MasterGroup = config['MasterGroup']
 
 #函数区开始
 
@@ -53,7 +53,7 @@ def ShutUp(msg, QQ, GroupID):
                 else:
                     sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
             
-            if str(GroupID) == loggroup:
+            if str(GroupID) == MasterGroup:
                 import time
                 nowtime=time.strftime("%Y%m%d%H%M%S",time.localtime())
                 sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
@@ -428,7 +428,7 @@ def Blockbyman(msg, QQ, GroupID):
                 POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
             else:
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
-    except ValueError:
+    except:
         if "yb.ch" in msg and QQ != config['botqq']:
             Adminer = sql.read('SELECT * FROM Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
