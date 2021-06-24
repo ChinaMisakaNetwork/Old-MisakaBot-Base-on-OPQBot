@@ -358,6 +358,7 @@ def Menu(msg, QQ, Group):
     menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
     if len(msg.split())==1:
         POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
+        return
     else:
         try:
             mm = int(msg.split()[1])
@@ -368,6 +369,7 @@ def Menu(msg, QQ, Group):
                 unuser[mm-1]['callback'](mr, QQ, Group)
             else:
                 POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
+                return
         except:
             raise
 
@@ -375,6 +377,7 @@ def gmeth_test(msg, QQ, GroupID):
     if msg.split()[0] == 'yb.test':
         ret = "OK\n参数: "+','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
+        return
 
 def Blockbyman(msg, QQ, GroupID):
     try:
