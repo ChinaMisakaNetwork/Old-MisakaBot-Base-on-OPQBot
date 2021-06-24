@@ -34,3 +34,7 @@ POST.TemporaryMsg(msg=信息,to=发给谁,groupid=群号,picurl=图片url,picbas
 ```
 POST.Announce(groupid=群号,title=公告标题,text="公告内容",Pinned=是否置顶（传入布尔参数),Usewindow=是否弹出（布尔）,tonewuser="是否给新用户发送(布尔)")
 ```
+6. 撤回消息
+```
+POST.CheHui(GroupID=群号, MsgSeq=消息MsgSeq, MsgRandom=消息MsgRandom)
+```

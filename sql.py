@@ -1,11 +1,15 @@
 # 导入pymysql模块
 import pymysql
+import json
 #定义数据库连接
-#请自行更改以下服务器相关信息
-host = 'host ip'
-user = 'database user name'
-password = 'database password'
-database = 'database name'
+f = open('./config.json')
+config = json.loads(f.read())['ServerConfig']
+f.close()
+
+host = config['MySQLHost']
+user = config['MySQLUser']
+password = config['MySQLPassword']
+database = config['MySQLDataBase']
 charset = 'utf8'
 # 连接database
 

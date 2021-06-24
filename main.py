@@ -8,14 +8,16 @@ import re
 import Text
 import Group
 import User
+import sql
+
 
 f = open('./config.json')
-config = json.loads(f.read())
+config = json.loads(f.read())['BotConfig']
 f.close()
 
 robotqq = config['botqq']  # 机器人QQ号
 webapi = config['server']  # Webapi接口 http://127.0.0.1:8888
-loggroup = config['loggroup']
+MasterGroup = config['MasterGroup']
 sio = socketio.Client()
 
 
@@ -99,12 +101,26 @@ def OnGroupMsgs(message):
         '''
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
-    if str(a.FromQQG) == loggroup and a.FromQQID !=robotqq:
+    
+    if str(a.FromQQG) == MasterGroup and a.FromQQID !=robotqq:
         import time,sql
-        time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{a.Content}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
-        sql.write(sqlcode)
+        time=time.strftime("%Y%m%d%H%M%S", time.localtime())
+
+
+        try:
+            msg = json.loads(a.Content)
+            if msg['Tips'] == '[回复]':
+                replyseq = msg['MsgSeq']
+                msg = a.Content.replace('"',r'\"')
+                sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
+                sql.write(sqlcode)
+        except:
+            msg = a.Content.replace('"',r'\"')
+            sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+            sql.write(sqlcode)
+    
     Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+    
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
         return
@@ -124,13 +140,21 @@ def OnFriendMsgs(message):
 @sio.on('OnEvents')
 def OnEvents(message):
     ''' 监听相关事件'''
+    try:
+        if message['CurrentPacket']['Data']["EventMsg"]["Content"] == '群成员撤回消息事件':
+            msgseq = message['CurrentPacket']['Data']['EventData']['MsgSeq']
+            msgran = message['CurrentPacket']['Data']['EventData']['MsgRandom']
+            sql.write(f'UPDATE log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
+    except:
+        pass
+    message1 = str(message).replace('"',r'\"')
+    sql.write(f'INSERT INTO eventlog (text) VALUES (\"{message1}\");')
     print(message)
 
 
 def main():
     try:
         sio.connect(webapi, transports=['websocket'])
-        # pdb.set_trace() #这是断点
         sio.wait()
     except BaseException as e:
         logging.info(e)

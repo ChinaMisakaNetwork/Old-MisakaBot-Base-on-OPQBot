@@ -20,10 +20,12 @@ import threading
 import subprocess
 
 f = open('./config.json')
-config = json.loads(f.read())
+config = json.loads(f.read())['BotConfig']
 f.close()
 POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
-loggroup = config['loggroup']
+MasterGroup = config['MasterGroup']
+
+#函数区开始
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -33,12 +35,16 @@ def ShutUp(msg, QQ, GroupID):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
                 shutuptime = json.loads(msg)['Content'].split(' ')[2]
+                if shutuptime == '':
+                    POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                    return
             except:
                 POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                 return
             POST.SetShutUpUser(qq=shutupuserid, time=shutuptime, groupid=GroupID)
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
+            
             if shutuptime != '0':
                 sqllist = sql.read('SELECT * FROM Violation;')
                 if str(shutupuserid) in str(sqllist):
@@ -46,12 +52,14 @@ def ShutUp(msg, QQ, GroupID):
                     sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
                 else:
                     sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
-            if str(GroupID) == loggroup:
+            
+            if str(GroupID) == MasterGroup:
                 import time
-                nowtime=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+                nowtime=time.strftime("%Y%m%d%H%M%S",time.localtime())
                 sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
                 sql.write(sqlcode)
                 return
+                
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
@@ -365,6 +373,127 @@ def gmeth_test(msg, QQ, GroupID):
         ret = "OK\n参数: "+','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
 
+def Blockbyman(msg, QQ, GroupID):
+    try:
+        json_parsing = json.loads(msg)
+        if "yb.ch" in json_parsing["Content"]:
+            adminlist = sql.read('select * from Admin;')
+            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in adminlist])):
+                msgse = json_parsing["MsgSeq"]
+                msg_dt2 = sql.read('select msgran, id from log where msgseq='+str(msgse)+';')[0]
+                msgran = msg_dt2[0]
+                idmsg = msg_dt2[1]
+                print("DT2", msg_dt2)
+                print("Ran", msgran, "id", idmsg)
+                if not sql.read('select Chehui from log where id='+str(idmsg))[0][0]:
+                    POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
+                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={idmsg};')
+                    flag1 = True
+                else:
+                    flag1 = False
+                print("Rollback status", flag1)
+                def rec_dele(msgseqrec, totalnum=0, fg=0):
+                    newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgseqrec))
+                    totalnum += len(newl)
+                    print("newl", newl)
+                    for x in newl:
+                        idr = x[0]
+                        msgseqr = x[1]
+                        msgranr = x[2]
+                        if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                            POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                            sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                        else:
+                            fg += 1
+                    for x in newl:
+                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg)
+                        totalnum += arr[0]
+                        fg += arr[1]
+                    return [totalnum, fg]
+                arr2 = rec_dele(msgse)
+                totalnum = arr2[0]
+                fg = arr2[1]
+                tmsg = ""
+                if flag1:
+                    tmsg += '撤回成功'
+                else:
+                    tmsg += '消息已被发送者本人撤回'
+                if totalnum == 0:
+                    tmsg += '。'
+                else:
+                    if not fg:
+                        tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
+                    else:
+                        tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
+            else:
+                POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
+    except:
+        if "yb.ch" in msg and QQ != config['botqq']:
+            Adminer = sql.read('SELECT * FROM Admin;')
+            if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
+
+                try:
+                    msgid = msg.split(' ')[1]
+                    if msgid == '':
+                        POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                        return
+
+                except:
+                    POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
+                    return
+
+                msglist = sql.read(f'SELECT msgseq,msgran FROM log WHERE id={msgid}')
+                if msglist == ():
+                    POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
+                    return
+                else:
+                    chehui = sql.read(f'SELECT Chehui FROM log WHERE id={msgid}')[0][0]
+                    if chehui == 0 :
+                        MsgSeq = msglist[0][0]
+                        MsgRandom = msglist[0][1]
+                        POST.CheHui(GroupID=GroupID, MsgSeq=MsgSeq, MsgRandom=MsgRandom)
+                        flagc = True
+                    else:
+                        flagc = False
+                    print("rollback status 2", flagc)
+                    print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
+                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
+                    def rec_del(msgs, totalnum=0, fg=0):
+                        newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
+                        print('recur', newlist)
+                        totalnum += len(newlist)
+                        for x in newlist:
+                            idr = x[0]
+                            msgseqr = x[1]
+                            msgranr = x[2]
+                            if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                                POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
+                                sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                            else:
+                                fg += 1
+                        for x in newlist:
+                            arr3 = rec_del(x[1])
+                            totalnum += arr3[0]
+                            fg += arr3[1]
+                        return [totalnum, fg]
+                    arr4 = rec_del(MsgSeq)
+                    totalnum = arr4[0]
+                    fg = arr4[1]
+                    tmsg = ""
+                    if flagc:
+                        tmsg += '撤回成功'
+                    else:
+                        tmsg += '消息已被发送者本人撤回'
+                    if totalnum == 0:
+                        tmsg += '。'
+                    else:
+                        if not fg:
+                            tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
+                        else:
+                            tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                    POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
+            
 #函数区结束
 
 #初始化
