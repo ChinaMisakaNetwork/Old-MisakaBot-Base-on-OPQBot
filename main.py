@@ -16,7 +16,7 @@ config = json.loads(f.read())['BotConfig']
 f.close()
 
 robotqq = config['botqq']  # 机器人QQ号
-webapi = config['server']  # Webapi接口 http://127.0.0.1:8888
+webapi = config['server']  # Webapi接口
 MasterGroup = config['MasterGroup']
 sio = socketio.Client()
 
