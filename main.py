@@ -110,11 +110,11 @@ def OnGroupMsgs(message):
             msg = json.loads(a.Content)
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
-                msg = a.Content.replace('"',r'\"')
+                msg = a.Content.replace('"',r'\"').replace("'","\'")
                 sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
         except:
-            msg = a.Content.replace('"',r'\"')
+            msg = a.Content.replace('"',r'\"').replace("'","\'")
             sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
             sql.write(sqlcode)
     

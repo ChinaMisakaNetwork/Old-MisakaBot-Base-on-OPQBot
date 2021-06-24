@@ -7,7 +7,8 @@
     {"desc": "登录哔哩哔哩(目前只有登录,其他功能正在开发ing)", "help":"yb.dl", "priv":false, "callback":"LoginBilibili", "cmd":"yb.dl"},
     {"desc": "群管", "help":"yb.jy @某人 时间", "priv":true, "callback":"ShutUp", "cmd":"yb.jy"},
     {"desc": "测试", "help":"yb.test [参数]", "priv":true, "callback":"gmeth_test", "cmd":"yb.test"},
-    {"desc": "撤回", "help":"yb.ch(回复要撤回的消息这句话就行)", "priv":true, "callback":"Blockbyman", "cmd":"yb.ch"}
+    {"desc": "撤回", "help":"yb.ch(回复要撤回的消息这句话就行)", "priv":true, "callback":"Blockbyman", "cmd":"yb.ch"},
+    {"desc": "网站工具", "help":"yb.site (功能),查询功能请使用yb.site 菜单", "priv":false, "callback":"SiteTools", "cmd":"yb.site"}
   ],
   "customize":
   {
@@ -17,6 +18,7 @@
     "Calc": "Calc",
     "Menu": "Menu",
     "Hitokoto":"hitokoto",
-    "Blockbyman":"Blockbyman"
+    "Blockbyman":"Blockbyman",
+    "SiteTools":"SiteTools"
   }
 }

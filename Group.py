@@ -18,6 +18,9 @@ import sql
 import matplotlib
 import threading
 import subprocess
+from bs4 import BeautifulSoup
+import lxml
+import time
 
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
@@ -354,7 +357,7 @@ def Menu(msg, QQ, Group):
         unuser = uauser
     menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
     if len(msg.split())==1:
-        POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
+        POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
     else:
         try:
             mm = int(msg.split()[1])
@@ -364,7 +367,7 @@ def Menu(msg, QQ, Group):
                 mr = me + ' ' + " ".join(mg)
                 unuser[mm-1]['callback'](mr, QQ, Group)
             else:
-                POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
+                POST.GroupMsg(msg=menu, groupid=GroupID, picbase=0, picurl=0)
         except:
             raise
 
@@ -493,7 +496,171 @@ def Blockbyman(msg, QQ, GroupID):
                         else:
                             tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
                     POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
-            
+
+def SiteTools(msg, QQ, GroupID):
+    if "yb.site" in msg and msg.split()[0] == "yb.site" :
+
+        #判断是否有参数
+        try:
+            cansu = msg.split()[1]
+        except:
+            POST.GroupMsg(msg='没有参数,请用yb.site 菜单 来查询', groupid=GroupID, picbase=0, picurl=0)
+            return
+
+        if msg.split()[1] == "菜单":
+            msg= "[T]站长工具\n● yb.site Ping [域名/IP]\n● yb.site 扒站 [地址]\n● yb.site 短链接 [链接]\n● yb.site 二维码 [内容]\n● yb.site 备案查询 [域名]\n● yb.site 收录查询 [域名]\n● yb.site 报毒检测 [域名/IP]"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picbase=0, picurl=0)
+
+        if msg.split()[1] == "Ping":
+            try:
+                ip = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if '.' in ip:
+                url = "https://api.tx7.co/api/pingspeed/?host=" + ip
+                response = requests.get(url).json()
+                if response["code"] == 200:
+                    msg = "{}！\n查询域名: {}\nIP地址: {}\nIP信息: {}\n平均延迟: {}\n最低延迟: {}\n最高延迟: {}\n检测节点: {}".format(response["msg"],response["host"],response["ip"],response["location"],response["ping_time_avg"],response["ping_time_min"],response["ping_time_max"],response["node"])
+                elif response["code"] == 201:
+                    msg = "{}！\n查询域名: {}\n错误信息: {}".format(response["msg"],ip,response["tips"])
+                else:
+                    msg = response["msg"] + "！"
+            else:
+                msg = "请输入正确的域名！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picbase=0, picurl=0)
+
+        if msg.split()[1] == "备案查询":
+            try:
+                domain = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if '.' in domain:
+                url = "https://api.muxiaoguo.cn/api/ICP?&url=" + domain
+                response = requests.get(url).json()
+                if response["code"] == 200:
+                    data = response["data"]
+                    msg = "查询成功！\n查询域名: {}\n单位名称: {}\n备案性质: {}\n备案号: {}\n网站名称: {}\n首页域名: {}\n审核日期: {}".format(data["url"],data["organizer_name"],data["nature"],data["license"],data["website_name"],data["website_home"],data["audit_time"])
+                elif response["code"] == -5:
+                    msg = "域名{}未查询到备案信息！".format(domain)
+                else:
+                    msg = response["msg"] + "！"
+            else:
+                msg = "请输入正确的域名！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
+        if msg.split()[1] == '收录查询':
+            try:
+                domain = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if '.' in domain:
+                url = "https://api.tx7.co/api/Included/?url=" + domain
+                response = requests.get(url).json()
+                if response["code"]==200:
+                    msg = "\n查询域名: {}\n百度收录: {}\n搜狗收录: {}\n好搜收录: {}".format(domain, str(response["baidu"]), str(response["sogou"]), str(response["haosōu"]))
+                else:
+                    msg = "查询错误！"
+            else:
+                msg = "\n请输入正确的域名！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
+        if msg.split()[1] == '二维码':
+            try:
+                domain = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            url = "https://cli.im/api/qrcode/code?text={}&mhid=vUfOWV3rmcshMHYtI9VSPqk".format(domain)
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, features='lxml')
+            qrcode_link = "https:"+ soup.find_all("img", {"class": "qrcode_plugins_img"})[0]['src']
+            suo_url = "http://api.suowo.cn/api.htm"
+            suo_data = {
+                "url": qrcode_link,
+                "key": "60b1fbcef1dda66d0d39171e@d47200b44492a4bad97b24404345a567",
+                "expireDate": "2030-03-31"
+            }
+            suo = requests.get(suo_url, params=suo_data).text
+            msg = "请求成功！\n请求内容: {}\n二维码链接: {}".format(domain, suo)
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
+        if msg.split()[1] == '报毒检测':
+            try:
+                domain = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if '.' in domain:
+                url = "https://www.oplog.cn/tx.php?url=" + domain
+                response = requests.get(url).json()
+                if response["type"]==1:
+                    msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
+                elif response["type"]==3:
+                    msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
+                else:
+                    msg = "检测域名: {}\n域名状态: 拦截\n拦截提示: {}\n拦截原因: {}".format(response["url"], response["word"], response["wordtit"])
+            else:
+                msg = "请输入正确的域名！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
+        if msg.split()[1] == '扒站':
+            try:
+                domain = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if not(("http://" in domain) or ("https://" in domain)):
+                domain = "http://" + domain
+            if '.' in domain:
+                url = "https://xiaojieapi.com/api/v1/get/wget?url=" + domain
+                response = requests.get(url).json()
+                if response["code"] == 200:
+                    POST.GroupMsg(msg='正在处理，请稍后...', groupid=GroupID, picurl=0, picbase=0)
+                    for i in range(10):
+                        time.sleep(4)
+                        response = requests.get(url).json()
+                        if response.get("url"):
+                            suo_url = "http://api.suowo.cn/api.htm"
+                            suo_data = {
+                                "url": response["url"],
+                                "key": "60b1fbcef1dda66d0d39171e@d47200b44492a4bad97b24404345a567",
+                                "expireDate": "2030-03-31"
+                            }
+                            suo = requests.get(suo_url, params=suo_data).text
+                            msg = "请求成功！\n请求地址: {}\n下载链接: {}".format(domain, suo)
+                            break
+                    if not response.get("url"):
+                        msg = "请求失败，请尝试添加协议头！"
+                else:
+                    msg = "请求失败，请检查站点信息后重试！"
+            else:
+                msg = "请输入正确的域名！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
+        if msg.split()[1] == '短链接':
+            try:
+                uri = msg.split()[2]
+            except:
+                POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
+                return
+            if not(("http://" in uri) or ("https://" in uri)):
+                uri = "http://" + uri
+            if '.' in uri:
+                suo_url = "http://api.suowo.cn/api.htm"
+                suo_data = {
+                    "url": uri,
+                    "key": "60b1fbcef1dda66d0d39171e@d47200b44492a4bad97b24404345a567",
+                    "expireDate": "2030-03-31"
+                }
+                suo = requests.get(suo_url, params=suo_data).text
+                msg = "请求成功！\n原链接: {}\n短链接: {}".format(uri, suo)
+            else:
+                msg = "请输入正确的链接！"
+            POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
 #函数区结束
 
 #初始化
