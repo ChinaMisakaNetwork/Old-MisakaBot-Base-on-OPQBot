@@ -20,6 +20,24 @@ MasterGroup = config['MasterGroup']
 sio = socketio.Client()
 
 
+#检测数据库中是表是不是完整
+print('开始检查数据库')
+for i in range(len(MasterGroup)):
+    GroupID = MasterGroup[i]
+    try:
+        sql.read(f'SELECT * FROM {GroupID}_Admin;')
+        sql.read(f'SELECT * FROM {GroupID}_log;')
+        sql.read(f'SELECT * FROM {GroupID}_ShutUplog;')
+        sql.read(f'SELECT * FROM {GroupID}_Violation;')
+        print(f'{GroupID}的群数据库检查PASS')
+    except:
+        raise Exception(f'群{GroupID}缺少数据库表,请检查')
+try:
+    sql.read(f'SELECT * FROM eventlog;')
+except:
+    raise Exception(f'EventLog数据表丢失')
+
+
 class GMess:
     # QQ群消息类型
     def __init__(self, message1):
@@ -101,7 +119,7 @@ def OnGroupMsgs(message):
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
     
-    if str(a.FromQQG) == MasterGroup and a.FromQQID !=robotqq:
+    if str(a.FromQQG) in MasterGroup and a.FromQQID !=robotqq:
         import time,sql
         time=time.strftime("%Y%m%d%H%M%S", time.localtime())
 
@@ -111,11 +129,11 @@ def OnGroupMsgs(message):
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
                 msg = a.Content.replace('"',r'\"').replace("'","\'")
-                sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
+                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
         except:
             msg = a.Content.replace('"',r'\"').replace("'","\'")
-            sqlcode = f'INSERT INTO log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+            sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
             sql.write(sqlcode)
     
         Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
@@ -144,6 +162,7 @@ def OnEvents(message):
             msgseq = message['CurrentPacket']['Data']['EventData']['MsgSeq']
             msgran = message['CurrentPacket']['Data']['EventData']['MsgRandom']
             sql.write(f'UPDATE log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
+            return
     except:
         pass
     message1 = str(message).replace('"',r'\"')
