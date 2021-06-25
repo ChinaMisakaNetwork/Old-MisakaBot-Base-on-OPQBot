@@ -9,7 +9,6 @@ import Group
 import User
 import sql
 
-
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
 f.close()
@@ -19,8 +18,7 @@ webapi = config['server']  # Webapi接口
 MasterGroup = config['MasterGroup']
 sio = socketio.Client()
 
-
-#检测数据库中是表是不是完整
+# 检测数据库中是表是不是完整
 print('开始检查数据库')
 for i in range(len(MasterGroup)):
     GroupID = MasterGroup[i]
@@ -59,7 +57,7 @@ class Mess:
 
 
 def beat():
-    while(1):
+    while (1):
         sio.emit('GetWebConn', robotqq)
         time.sleep(60)
 
@@ -118,32 +116,32 @@ def OnGroupMsgs(message):
         '''
     # ————————违规消息检测部分分割线————————
     # 如果不需要此部分就删掉分割线内内容,并且把下一行取消注释
-    
-    if str(a.FromQQG) in MasterGroup and a.FromQQID !=robotqq:
-        import time,sql
-        time=time.strftime("%Y%m%d%H%M%S", time.localtime())
+
+    if str(a.FromQQG) in MasterGroup and a.FromQQID != robotqq:
+        import time, sql
+        time = time.strftime("%Y%m%d%H%M%S", time.localtime())
 
         try:
             msg = json.loads(a.Content)
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
-                msg = a.Content.replace('"',r'\"').replace("'","\'")
+                msg = a.Content.replace('"', r'\"').replace("'", "\'")
                 sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
             else:
-                msg = a.Content.replace('"',r'\"').replace("'","\'")
+                msg = a.Content.replace('"', r'\"').replace("'", "\'")
                 sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
         except:
             try:
-                msg = a.Content.replace('"',r'\"').replace("'","\'")
+                msg = a.Content.replace('"', r'\"').replace("'", "\'")
                 sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
-            
+
         Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
-    
+
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
         return
@@ -172,7 +170,7 @@ def OnEvents(message):
             return
     except:
         pass
-    message1 = str(message).replace('"',r'\"')
+    message1 = str(message).replace('"', r'\"')
     sql.write(f'INSERT INTO eventlog (text) VALUES (\"{message1}\");')
     print(message)
 

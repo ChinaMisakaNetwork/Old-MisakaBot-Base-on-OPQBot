@@ -6,22 +6,22 @@ import re
 import io
 import base64
 
+
 # 定义一个快速提取参数的函数
 
 
 def getcansu(url):
-
     urldata = parse.unquote(url)
     result = parse.urlparse(urldata)
     query_dict = parse.parse_qs(result.query)
 
     cachesessdata = query_dict.get('SESSDATA', [])[0]
     a = re.split('[,]', cachesessdata)
-    SESSDATA = a[0]+'%2C'+a[1]+'%2C'+a[2]
+    SESSDATA = a[0] + '%2C' + a[1] + '%2C' + a[2]
 
     csrf = query_dict.get('bili_jct', [])[0]
 
-    return({"csrf": csrf, "sessdata": SESSDATA})
+    return ({"csrf": csrf, "sessdata": SESSDATA})
 
 
 class Login:
@@ -43,7 +43,7 @@ class Login:
         image_stream = buf.getvalue()
         heximage = base64.b64encode(image_stream)
         # 'data:image/jpeg;base64,' +
-        return(heximage.decode())
+        return (heximage.decode())
 
     def chaxunlogin(self):
         data = {
@@ -54,7 +54,7 @@ class Login:
         logindata = json.loads(chaxun.text)
 
         if logindata['status'] == False:
-            return('Not Logined')
+            return ('Not Logined')
         else:
             loginedurl = logindata['data']['url']
-            return(getcansu(loginedurl))
+            return (getcansu(loginedurl))

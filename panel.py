@@ -17,7 +17,7 @@ def read(SQL):
     ret = cursor.fetchall()
     cursor.close()
     conn.close()
-    return(ret)
+    return (ret)
 
 
 def write(sql):
@@ -152,7 +152,7 @@ def exists():
     qq = flask.request.args.get('qq')
     try:
         int(qq)
-        if len(read('SELECT * FROM Admin WHERE QQ='+str(qq))) > 0:
+        if len(read('SELECT * FROM Admin WHERE QQ=' + str(qq))) > 0:
             return 'true'
         else:
             return 'false'
@@ -174,7 +174,7 @@ def remove():
     qq = flask.request.args.get('qq')
     try:
         int(qq)
-        write('DELETE FROM Admin WHERE QQ='+qq)
+        write('DELETE FROM Admin WHERE QQ=' + qq)
         return 'true'
     except:
         return 'false'
@@ -184,8 +184,8 @@ def remove():
 def sl():
     res = read('SELECT * FROM Admin')
     retl = "<select id=\'adlist\' size=\'15\'>"
-    retl += ''.join(["<option value=\'"+x[0]+"\'> " +
-                     x[0]+" </option>" for x in res])
+    retl += ''.join(["<option value=\'" + x[0] + "\'> " +
+                     x[0] + " </option>" for x in res])
     retl += '</select>'
     return retl
 

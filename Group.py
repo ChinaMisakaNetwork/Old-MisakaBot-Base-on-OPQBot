@@ -5,8 +5,8 @@ import itertools
 import urllib
 import base64
 import api
-from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application
-from sympy import parse_expr,latex,evaluate,latex,Eq,solve,factor,plot
+from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
+from sympy import parse_expr, latex, evaluate, latex, Eq, solve, factor, plot
 from PIL import Image
 from urllib import request
 import requests
@@ -25,10 +25,11 @@ import time
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
 f.close()
-POST = api.PostMsg(url=config['server'],botqq=config['botqq'])
+POST = api.PostMsg(url=config['server'], botqq=config['botqq'])
 MasterGroup = config['MasterGroup']
 
-#函数区开始
+
+# 函数区开始
 
 def ShutUp(msg, QQ, GroupID):
     import json
@@ -47,33 +48,34 @@ def ShutUp(msg, QQ, GroupID):
             POST.SetShutUpUser(qq=shutupuserid, time=shutuptime, groupid=GroupID)
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
-            
             if shutuptime != '0':
                 sqllist = sql.read(f'SELECT * {GroupID}_FROM Violation;')
                 if str(shutupuserid) in str(sqllist):
                     edtimes = sql.read(f'SELECT WarningTimes FROM {GroupID}_Violation WHERE QQ="{shutupuserid}";')[0][0]
-                    sql.write(f'UPDATE {GroupID}_Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
+                    sql.write(f'UPDATE {GroupID}_Violation SET WarningTimes={edtimes + 1} WHERE QQ="{shutupuserid}";')
                 else:
                     sql.write(f'INSERT INTO {GroupID}_Violation VALUES ("{shutupuserid}",1);')
-            
+
             if str(GroupID) == MasterGroup:
                 import time
-                nowtime=time.strftime("%Y%m%d%H%M%S",time.localtime())
+                nowtime = time.strftime("%Y%m%d%H%M%S", time.localtime())
                 sqlcode = f'INSERT INTO {GroupID}_ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
                 sql.write(sqlcode)
                 return
-                
+
         else:
             POST.GroupMsg(msg='非许可用户,不可使用该命令',
                           groupid=GroupID, picurl=0, picbase=0)
+
 
 def LoginBilibili(msg, QQ, GroupID):
     if msg == msg.split()[0] == "yb.dl":
         POST.GroupMsg(msg='请私聊我发送“yb.dl”登录哦',
                       groupid=GroupID, picurl=0, picbase=0)
 
+
 def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
-    #Adminer = sql.read('SELECT * FROM Admin;')
+    # Adminer = sql.read('SELECT * FROM Admin;')
     if str(QQ) == str(config['botqq']):
         return
     else:
@@ -83,14 +85,16 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
         POST.SetShutUpUser(
             qq=QQ, time=config['TextShutupTime'], groupid=GroupID)
 
+
 def Weather(msg, QQ, GroupID):
     fakeflag = False
+
     def print_weather(fakeflag):
         if fakeflag:
             cityid = sqlr3[0][2]
         else:
             cityid = sqlr[0][2]
-        rawdata = json.loads(requests.get("http://www.worldweather.cn/zh/json/%d_zh.xml"%cityid).text)
+        rawdata = json.loads(requests.get("http://www.worldweather.cn/zh/json/%d_zh.xml" % cityid).text)
         rawndta = json.loads(requests.get("https://worldweather.wmo.int/en/json/present.xml").text)["present"]
         for x in rawndta.keys():
             if rawndta[x]['cityId'] == cityid:
@@ -100,7 +104,7 @@ def Weather(msg, QQ, GroupID):
         nowrh = usendta['rh']
         for x in rawdata["city"]["forecast"]["forecastDay"]:
             if x["forecastDate"] == time.strftime("%Y-%m-%d"):
-                bfc=x
+                bfc = x
                 break
         templow = bfc["minTemp"]
         temphigh = bfc["maxTemp"]
@@ -109,119 +113,129 @@ def Weather(msg, QQ, GroupID):
         ret = ""
         if fakeflag:
             ret += "找不到这个城市, 但是有1个相似记录\n也许你想找的是这个?\n\n"
-        ret +="%s的天气状况: \n"%rawdata["city"]["cityName"]
-        ret += "温度: "+str(nowtemp)+"℃ ("+str(templow)+"℃ - "+str(temphigh)+"℃)\n"
-        ret += "湿度: "+str(nowrh)+"%\n"
-        ret += dsc+"\n"
+        ret += "%s的天气状况: \n" % rawdata["city"]["cityName"]
+        ret += "温度: " + str(nowtemp) + "℃ (" + str(templow) + "℃ - " + str(temphigh) + "℃)\n"
+        ret += "湿度: " + str(nowrh) + "%\n"
+        ret += dsc + "\n"
         try:
-            picf = open("./plugin/weather/"+icon+".png", "rb").read()
+            picf = open("./plugin/weather/" + icon + ".png", "rb").read()
             pbase = base64.b64encode(picf).decode()
             rtst += "\n[PICFLAG]"
         except:
             try:
-                picf = open("./plugin/weather/"+icon+"a.png", "rb").read()
+                picf = open("./plugin/weather/" + icon + "a.png", "rb").read()
                 pbase = base64.b64encode(picf).decode()
                 rtst += "\n[PICFLAG]"
             except:
                 pbase = 0
         ret += "\n程式所使用的API 仍然处于测试阶段, 瞬时温度准确率较差, 请以当地政府部门的数据为准。"
-        POST.GroupMsg(msg=ret, groupid = GroupID, picurl = 0, picbase = pbase)
+        POST.GroupMsg(msg=ret, groupid=GroupID, picurl=0, picbase=pbase)
+
     msg = zhconv.convert(msg, "zh-hans")
     if msg.split()[0] == "yb.tq" and len(msg.split()) < 3 and len(msg.split()) > 1:
-        city = msg.split()[1].replace("'","").lower().replace(' ','')
+        city = msg.split()[1].replace("'", "").lower().replace(' ', '')
         if '#' in city or '--' in city or '"' in city:
-            POST.GroupMsg(msg = zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]), groupid = GroupID, picurl = 0, picbase = 0)
-            POST.GroupMsg(msg = "QQ号为"+str(QQ)+"的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n"+msg, groupid = 872324801 , picurl = 0, picbase = 0)
+            POST.GroupMsg(
+                msg=zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]),
+                groupid=GroupID, picurl=0, picbase=0)
+            POST.GroupMsg(msg="QQ号为" + str(QQ) + "的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n" + msg,
+                          groupid=872324801, picurl=0, picbase=0)
         else:
-            sqlr = sql.read("select * from weather_city_list where 2layer = '"+city+"';")
+            sqlr = sql.read("select * from weather_city_list where 2layer = '" + city + "';")
             if len(sqlr) == 0:
-                sqlr2 = sql.read("select * from weather_city_list where 1layer = '"+city+"';")
-                if len(sqlr2)>0:
-                    POST.GroupMsg(msg = "请输入具体城市名作为参数。可选列表: \n"+", ".join([x[1] for x in sql.read('SELECT * FROM weather_city_list WHERE 1layer="'+city+'"')]), groupid=GroupID, picurl=0, picbase=0)
+                sqlr2 = sql.read("select * from weather_city_list where 1layer = '" + city + "';")
+                if len(sqlr2) > 0:
+                    POST.GroupMsg(msg="请输入具体城市名作为参数。可选列表: \n" + ", ".join(
+                        [x[1] for x in sql.read('SELECT * FROM weather_city_list WHERE 1layer="' + city + '"')]),
+                                  groupid=GroupID, picurl=0, picbase=0)
                     return 0
                 else:
-                    sqlr3 = sql.read("select * from weather_city_list where 2layer like '%"+city+"%';")
-                    if len(sqlr3)==0:
-                        POST.GroupMsg(msg = "无查询结果。\n请确认是否有错别字或者拼写错误。", groupid = GroupID, picurl = 0, picbase = 0)
+                    sqlr3 = sql.read("select * from weather_city_list where 2layer like '%" + city + "%';")
+                    if len(sqlr3) == 0:
+                        POST.GroupMsg(msg="无查询结果。\n请确认是否有错别字或者拼写错误。", groupid=GroupID, picurl=0, picbase=0)
                         return 0
                     elif len(sqlr3) == 1:
                         print_weather(True)
                     else:
-                        mess = "找不到这个城市, 但是有%d个相似记录\n"%len(sqlr3)
-                        mess+= "也许你要找的是: \n"
-                        mess+= "\n".join([sqlr3[x][1] for x in range(0, min(10, len(sqlr3)))])
-                        if len(mess)>10:
-                            mess+="\n等"
-                        POST.GroupMsg(msg = mess, groupid = GroupID, picurl = 0, picbase = 0)
+                        mess = "找不到这个城市, 但是有%d个相似记录\n" % len(sqlr3)
+                        mess += "也许你要找的是: \n"
+                        mess += "\n".join([sqlr3[x][1] for x in range(0, min(10, len(sqlr3)))])
+                        if len(mess) > 10:
+                            mess += "\n等"
+                        POST.GroupMsg(msg=mess, groupid=GroupID, picurl=0, picbase=0)
                         return 0
             else:
                 print_weather(False)
 
-def hitokoto(msg,QQ,GroupID):
+
+def hitokoto(msg, QQ, GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
     if msg.split(' ')[0] == "yb.my":
-        Typelist = ['a','b','c','d','e','f','g','h','i','j','k','l']
-        Typelist2 = ['动画','漫画','游戏','文学','原创','来自网络','其他','影视','诗词','网易云','哲学','抖机灵']
+        Typelist = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l']
+        Typelist2 = ['动画', '漫画', '游戏', '文学', '原创', '来自网络', '其他', '影视', '诗词', '网易云', '哲学', '抖机灵']
 
         try:
             Type = msg.split(' ')[1]
         except:
-            POST.GroupMsg(msg='缺失参数',groupid=GroupID,picbase=0,picurl=0)
+            POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
             return
 
         if Type == '类别':
-            POST.GroupMsg(msg=str(Typelist2),groupid=GroupID,picbase=0,picurl=0)
+            POST.GroupMsg(msg=str(Typelist2), groupid=GroupID, picbase=0, picurl=0)
             return
 
         try:
             CodeTypeindex = Typelist2.index(Type)
         except:
-            POST.GroupMsg(msg='无此类别',groupid=GroupID,picbase=0,picurl=0)
+            POST.GroupMsg(msg='无此类别', groupid=GroupID, picbase=0, picurl=0)
             return
 
-
         CodeType = Typelist[CodeTypeindex]
-        jsonstr = json.loads(requests.get(Mainurl+f'?c={CodeType}').text)
+        jsonstr = json.loads(requests.get(Mainurl + f'?c={CodeType}').text)
         if jsonstr['from_who'] == None:
-            saying = jsonstr['hitokoto']+'----'+jsonstr['from']
+            saying = jsonstr['hitokoto'] + '----' + jsonstr['from']
         else:
-            saying = jsonstr['hitokoto']+'----'+jsonstr['from']+' '+jsonstr['from_who']
-        POST.GroupMsg(msg=saying,groupid=GroupID,picbase=0,picurl=0)
+            saying = jsonstr['hitokoto'] + '----' + jsonstr['from'] + ' ' + jsonstr['from_who']
+        POST.GroupMsg(msg=saying, groupid=GroupID, picbase=0, picurl=0)
+
 
 def Calc(msg, QQ, GroupID):
     msg = msg.replace("^", "**")
-    if msg.split()[0] == "yb.js" and len(msg.split())>1:
+    if msg.split()[0] == "yb.js" and len(msg.split()) > 1:
         transformations = (standard_transformations + (implicit_multiplication_application,))
-        #rmsg = msg[1:]
+
+        # rmsg = msg[1:]
         def get_concat_v_blank(im1, im2, color=(255, 255, 255, 0)):
             dst = Image.new('RGBA', (max(im1.width, im2.width), im1.height + im2.height + 50), color)
             dst.paste(im1, (0, 0))
-            dst.paste(im2, (0, im1.height+50))
+            dst.paste(im2, (0, im1.height + 50))
             return dst
+
         def parse(s, e=True):
-            return parse_expr(s, transformations=transformations, evaluate = e)
+            return parse_expr(s, transformations=transformations, evaluate=e)
+
         expo = msg.split()[1]
         msg = msg.split()
-        if expo.lower() in ['解方程','因式分解','一般计算', '画图', 'alg', 'factor', 'calc', 'plot']:
-            meth = {'解方程':0,'因式分解':1,'一般计算':2, '画图':3, 'alg':0, 'factor':1, 'calc':2, 'plot':3}[expo.lower()]
+        if expo.lower() in ['解方程', '因式分解', '一般计算', '画图', 'alg', 'factor', 'calc', 'plot']:
+            meth = {'解方程': 0, '因式分解': 1, '一般计算': 2, '画图': 3, 'alg': 0, 'factor': 1, 'calc': 2, 'plot': 3}[expo.lower()]
             msg = msg[1:]
             exp = msg[1]
-            exp2 = exp.replace("^","**").replace(" ","").split("=")
+            exp2 = exp.replace("^", "**").replace(" ", "").split("=")
             if len(exp2) == 1:
                 if meth == 0:
                     meth = 2
             else:
                 if meth == 1 or meth == 2:
-                    POST.GroupMsg(msg= "请检查输入!", groupid = GroupID, picurl = 0, picbase = 0)
+                    POST.GroupMsg(msg="请检查输入!", groupid=GroupID, picurl=0, picbase=0)
                     return
         else:
-            POST.GroupMsg(msg= "请检查输入!", groupid = GroupID, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg="请检查输入!", groupid=GroupID, picurl=0, picbase=0)
             return
         try:
-            u=msg[2]
+            u = msg[2]
         except:
-            u=None
-        exp = exp.replace("^","**").replace(" ","")
+            u = None
+        exp = exp.replace("^", "**").replace(" ", "")
         exp = exp.split("=")
         if meth == 2:
             try:
@@ -232,23 +246,26 @@ def Calc(msg, QQ, GroupID):
                 except:
                     v = latex(parse(exp[0], False))
                 u = v + "=" + f
-                img = base64.b64encode(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":u,"resolution":600,"color":"000000"}).text)['url']).read()).decode()
-                POST.GroupMsg(msg = "结果: "+str(parse(exp[0]))+'\n[PICFLAG]', groupid = GroupID, picurl = 0, picbase = img)
+                img = base64.b64encode(request.urlopen("http://latex2png.com" + eval(
+                    requests.post("http://latex2png.com/api/convert",
+                                  json={"auth": {"user": "guest", "password": "guest"}, "latex": u, "resolution": 600,
+                                        "color": "000000"}).text)['url']).read()).decode()
+                POST.GroupMsg(msg="结果: " + str(parse(exp[0])) + '\n[PICFLAG]', groupid=GroupID, picurl=0, picbase=img)
             except BaseException as e:
-                POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                POST.GroupMsg(msg="可能无解, 或者输入错误, 或者程式不支援", groupid=GroupID, picurl=0, picbase=0)
                 raise e
         elif meth == 0:
             try:
                 equat = Eq(parse(exp[0]), parse(exp[1]))
                 if u != None:
                     u = parse(u)
-                    if not (u in list(parse(exp[0]).free_symbols)+list(parse(exp[1]).free_symbols)):
+                    if not (u in list(parse(exp[0]).free_symbols) + list(parse(exp[1]).free_symbols)):
                         u = None
                 if u == None:
                     solv = solve(equat, dict=True)
                 else:
                     solv = solve(equat, u, dict=True)
-                if len(solv)>0:
+                if len(solv) > 0:
                     rtlist = []
                     imgs = []
                     for x in solv:
@@ -256,9 +273,12 @@ def Calc(msg, QQ, GroupID):
                         res = list(x.values())[0]
                         ltv = latex(var)
                         ltr = latex(res)
-                        lt = ltv+'='+ltr
-                        imgs.append(Image.open(request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":lt,"resolution":600,"color":"000000"}).text)['url'])))
-                        rtlist.append(str(var)+"="+str(res))
+                        lt = ltv + '=' + ltr
+                        imgs.append(Image.open(request.urlopen("http://latex2png.com" + eval(
+                            requests.post("http://latex2png.com/api/convert",
+                                          json={"auth": {"user": "guest", "password": "guest"}, "latex": lt,
+                                                "resolution": 600, "color": "000000"}).text)['url'])))
+                        rtlist.append(str(var) + "=" + str(res))
                     fimg = imgs[0]
                     del imgs[0]
                     for x in imgs:
@@ -266,11 +286,12 @@ def Calc(msg, QQ, GroupID):
                     buffer = io.BytesIO()
                     fimg.save(buffer, format='PNG')
                     b6e = base64.b64encode(buffer.getvalue()).decode()
-                    POST.GroupMsg(msg = "解: \n"+" 或\n".join(rtlist)+"\n[PICFLAG]", groupid = GroupID, picurl = 0, picbase = b6e)
+                    POST.GroupMsg(msg="解: \n" + " 或\n".join(rtlist) + "\n[PICFLAG]", groupid=GroupID, picurl=0,
+                                  picbase=b6e)
                 else:
-                    POST.GroupMsg(msg = "可能无解, 或者输入错误", groupid = GroupID, picurl = 0, picbase = 0)
+                    POST.GroupMsg(msg="可能无解, 或者输入错误", groupid=GroupID, picurl=0, picbase=0)
             except BaseException as e:
-                POST.GroupMsg(msg = "可能无解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                POST.GroupMsg(msg="可能无解, 或者输入错误, 或者程式不支援", groupid=GroupID, picurl=0, picbase=0)
         elif meth == 1:
             try:
                 expres = parse(exp[0])
@@ -280,33 +301,40 @@ def Calc(msg, QQ, GroupID):
                 except:
                     ov = latex(parse(exp[0]))
                 v = factor(expres)
-                b6e2 = request.urlopen("http://latex2png.com"+eval(requests.post("http://latex2png.com/api/convert", json = {"auth":{"user":"guest","password":"guest"},"latex":ov + '=' + latex(v),"resolution":600,"color":"000000"}).text)['url']).read()
-                POST.GroupMsg(msg = '解: '+str(v).replace("**", '^')+"\n[PICFLAG]", groupid=GroupID, picurl = 0, picbase = base64.encodebytes(b6e2).decode())
+                b6e2 = request.urlopen("http://latex2png.com" + eval(requests.post("http://latex2png.com/api/convert",
+                                                                                   json={"auth": {"user": "guest",
+                                                                                                  "password": "guest"},
+                                                                                         "latex": ov + '=' + latex(v),
+                                                                                         "resolution": 600,
+                                                                                         "color": "000000"}).text)[
+                    'url']).read()
+                POST.GroupMsg(msg='解: ' + str(v).replace("**", '^') + "\n[PICFLAG]", groupid=GroupID, picurl=0,
+                              picbase=base64.encodebytes(b6e2).decode())
             except BaseException as e:
-                POST.GroupMsg(msg = "可能无法分解, 或者输入错误, 或者程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
-                raise(e)
+                POST.GroupMsg(msg="可能无法分解, 或者输入错误, 或者程式不支援", groupid=GroupID, picurl=0, picbase=0)
+                raise (e)
         elif meth == 3:
             udata = msg[1:]
             xy1 = []
             xy2 = set()
             xy3 = {}
             if len(udata) < 3:
-                POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
+                POST.GroupMsg(msg="请检查输入", groupid=GroupID, picurl=0, picbase=0)
                 return
             try:
                 axis = int(udata[-1])
                 symb = parse(udata[-2])
             except ValueError:
-                POST.GroupMsg(msg = "请检查输入", groupid = GroupID, picurl = 0, picbase = 0)
+                POST.GroupMsg(msg="请检查输入", groupid=GroupID, picurl=0, picbase=0)
                 return
             udata = udata[:-2]
             for xyc1 in udata:
                 if '=' in xyc1:
                     xtc = xyc1.split('=')
-                    if len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)> 2:
-                        POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                    if len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols) > 2:
+                        POST.GroupMsg(msg="程式暂不支援", groupid=GroupID, picurl=0, picbase=0)
                         return
-                    elif len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols)>=1:
+                    elif len(parse(xtc[0]).free_symbols) + len(parse(xtc[1]).free_symbols) >= 1:
                         lt = list(parse(xtc[0]).free_symbols) + list(parse(xtc[1]).free_symbols)
                         for n in lt:
                             if n in xy3.keys():
@@ -314,20 +342,20 @@ def Calc(msg, QQ, GroupID):
                             else:
                                 xy3.update({n: [solve(Eq(parse(xtc[0]), parse(xtc[1])), n)]})
                 else:
-                    POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                    POST.GroupMsg(msg="程式暂不支援", groupid=GroupID, picurl=0, picbase=0)
                     return
-            if len(xy2)>1:
-                POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+            if len(xy2) > 1:
+                POST.GroupMsg(msg="程式暂不支援", groupid=GroupID, picurl=0, picbase=0)
                 return
             else:
-                if len(xy3.keys())>2 or not (symb in xy3.keys()):
-                    POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                if len(xy3.keys()) > 2 or not (symb in xy3.keys()):
+                    POST.GroupMsg(msg="程式暂不支援", groupid=GroupID, picurl=0, picbase=0)
                     return
                 try:
                     x5 = list(xy3.keys())
                     x5.remove(list(xy2)[0])
-                    if len(x5)!=1:
-                        POST.GroupMsg(msg = "程式暂不支援", groupid = GroupID, picurl = 0, picbase = 0)
+                    if len(x5) != 1:
+                        POST.GroupMsg(msg="程式暂不支援", groupid=GroupID, picurl=0, picbase=0)
                         return
                     for x4 in xy3[x5[0]]:
                         [xy1.append(x6) for x6 in x4]
@@ -337,10 +365,12 @@ def Calc(msg, QQ, GroupID):
             fsym.remove(symb)
             xy8 = list(itertools.chain.from_iterable(xy3[fsym[0]]))
             subs = [[str(x) for x in xy8], str(symb), axis, str(symb), str(fsym[0])]
-            res = eval(subprocess.getoutput("python ./plugin/Calc/Plot.py "+base64.b64encode(repr(subs).encode()).decode()))
-            POST.GroupMsg(msg = res[0], groupid = GroupID, picbase = res)
+            res = eval(
+                subprocess.getoutput("python ./plugin/Calc/Plot.py " + base64.b64encode(repr(subs).encode()).decode()))
+            POST.GroupMsg(msg=res[0], groupid=GroupID, picbase=res)
         else:
-            POST.GroupMsg(msg = "程式不支援", groupid = GroupID, picurl = 0, picbase = 0)
+            POST.GroupMsg(msg="程式不支援", groupid=GroupID, picurl=0, picbase=0)
+
 
 def Menu(msg, QQ, Group):
     if msg.split()[0] != "御坂菜单":
@@ -355,29 +385,32 @@ def Menu(msg, QQ, Group):
         unuser = cfg
     else:
         unuser = uauser
-    menu = "御坂御坂可以帮您做这些事情哦:\n"+"\n".join(["%d. %s (%s)"%(ct+1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
-    if len(msg.split())==1:
+    menu = "御坂御坂可以帮您做这些事情哦:\n" + "\n".join(
+        ["%d. %s (%s)" % (ct + 1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
+    if len(msg.split()) == 1:
         POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
         return
     else:
         try:
             mm = int(msg.split()[1])
-            if mm > 0 and mm < len(unuser)+1:
+            if mm > 0 and mm < len(unuser) + 1:
                 mg = msg.split()[2:]
-                me = unuser[mm-1]['cmd']
+                me = unuser[mm - 1]['cmd']
                 mr = me + ' ' + " ".join(mg)
-                unuser[mm-1]['callback'](mr, QQ, Group)
+                unuser[mm - 1]['callback'](mr, QQ, Group)
             else:
                 POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
                 return
         except:
             raise
 
+
 def gmeth_test(msg, QQ, GroupID):
     if msg.split()[0] == 'yb.test':
-        ret = "OK\n参数: "+','.join(msg.split()[1:])
+        ret = "OK\n参数: " + ','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
         return
+
 
 def Blockbyman(msg, QQ, GroupID):
     try:
@@ -386,27 +419,28 @@ def Blockbyman(msg, QQ, GroupID):
             adminlist = sql.read(f'select * from {GroupID}_Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in adminlist])):
                 msgse = json_parsing["MsgSeq"]
-                msg_dt2 = sql.read(f'select msgran, id from {GroupID}_log where msgseq='+str(msgse)+';')[0]
+                msg_dt2 = sql.read(f'select msgran, id from {GroupID}_log where msgseq=' + str(msgse) + ';')[0]
                 msgran = msg_dt2[0]
                 idmsg = msg_dt2[1]
                 print("DT2", msg_dt2)
                 print("Ran", msgran, "id", idmsg)
-                if not sql.read(f'select Chehui from {GroupID}_log where id='+str(idmsg))[0][0]:
+                if not sql.read(f'select Chehui from {GroupID}_log where id=' + str(idmsg))[0][0]:
                     POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
                     sql.write(f'UPDATE {GroupID}_og SET Chehui=1 WHERE id={idmsg};')
                     flag1 = True
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
+
                 def rec_dele(msgseqrec, totalnum=0, fg=0):
-                    newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq='+str(msgseqrec))
+                    newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq=' + str(msgseqrec))
                     totalnum += len(newl)
                     print("newl", newl)
                     for x in newl:
                         idr = x[0]
                         msgseqr = x[1]
                         msgranr = x[2]
-                        if not sql.read(f'select Chehui from {GroupID}_log where id='+str(idr))[0][0]:
+                        if not sql.read(f'select Chehui from {GroupID}_log where id=' + str(idr))[0][0]:
                             POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
                             sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
                         else:
@@ -416,6 +450,7 @@ def Blockbyman(msg, QQ, GroupID):
                         totalnum += arr[0]
                         fg += arr[1]
                     return [totalnum, fg]
+
                 arr2 = rec_dele(msgse)
                 totalnum = arr2[0]
                 fg = arr2[1]
@@ -430,7 +465,7 @@ def Blockbyman(msg, QQ, GroupID):
                     if not fg:
                         tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
                     else:
-                        tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                        tmsg += ', 另 在回复此消息的消息中, 共有' + str(fg) + '调被消息发送者本人撤回, 其他均已成功撤回。'
                 POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
             else:
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
@@ -455,7 +490,7 @@ def Blockbyman(msg, QQ, GroupID):
                     return
                 else:
                     chehui = sql.read(f'SELECT Chehui FROM {GroupID}_log WHERE id={msgid}')[0][0]
-                    if chehui == 0 :
+                    if chehui == 0:
                         MsgSeq = msglist[0][0]
                         MsgRandom = msglist[0][1]
                         POST.CheHui(GroupID=GroupID, MsgSeq=MsgSeq, MsgRandom=MsgRandom)
@@ -465,6 +500,7 @@ def Blockbyman(msg, QQ, GroupID):
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
                     sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={msgid};')
+
                     def rec_del(msgs, totalnum=0, fg=0):
                         newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
                         print('recur', newlist)
@@ -473,7 +509,7 @@ def Blockbyman(msg, QQ, GroupID):
                             idr = x[0]
                             msgseqr = x[1]
                             msgranr = x[2]
-                            if not sql.read(f'select {GroupID}_Chehui from log where id='+str(idr))[0][0]:
+                            if not sql.read(f'select {GroupID}_Chehui from log where id=' + str(idr))[0][0]:
                                 POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
                                 sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
                             else:
@@ -483,6 +519,7 @@ def Blockbyman(msg, QQ, GroupID):
                             totalnum += arr3[0]
                             fg += arr3[1]
                         return [totalnum, fg]
+
                     arr4 = rec_del(MsgSeq)
                     totalnum = arr4[0]
                     fg = arr4[1]
@@ -497,13 +534,14 @@ def Blockbyman(msg, QQ, GroupID):
                         if not fg:
                             tmsg += ', 另 所有回复此消息的消息已被全部撤回。'
                         else:
-                            tmsg += ', 另 在回复此消息的消息中, 共有'+str(fg)+'调被消息发送者本人撤回, 其他均已成功撤回。'
+                            tmsg += ', 另 在回复此消息的消息中, 共有' + str(fg) + '调被消息发送者本人撤回, 其他均已成功撤回。'
                     POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
 
-def SiteTools(msg, QQ, GroupID):
-    if "yb.site" in msg and msg.split()[0] == "yb.site" :
 
-        #判断是否有参数
+def SiteTools(msg, QQ, GroupID):
+    if "yb.site" in msg and msg.split()[0] == "yb.site":
+
+        # 判断是否有参数
         try:
             cansu = msg.split()[1]
         except:
@@ -511,7 +549,7 @@ def SiteTools(msg, QQ, GroupID):
             return
 
         if msg.split()[1] == "菜单":
-            msg= "[T]站长工具\n● yb.site Ping [域名/IP]\n● yb.site 扒站 [地址]\n● yb.site 短链接 [链接]\n● yb.site 二维码 [内容]\n● yb.site 备案查询 [域名]\n● yb.site 收录查询 [域名]\n● yb.site 报毒检测 [域名/IP]"
+            msg = "[T]站长工具\n● yb.site Ping [域名/IP]\n● yb.site 扒站 [地址]\n● yb.site 短链接 [链接]\n● yb.site 二维码 [内容]\n● yb.site 备案查询 [域名]\n● yb.site 收录查询 [域名]\n● yb.site 报毒检测 [域名/IP]"
             POST.GroupMsg(msg=msg, groupid=GroupID, picbase=0, picurl=0)
 
         if msg.split()[1] == "Ping":
@@ -524,9 +562,12 @@ def SiteTools(msg, QQ, GroupID):
                 url = "https://api.tx7.co/api/pingspeed/?host=" + ip
                 response = requests.get(url).json()
                 if response["code"] == 200:
-                    msg = "{}！\n查询域名: {}\nIP地址: {}\nIP信息: {}\n平均延迟: {}\n最低延迟: {}\n最高延迟: {}\n检测节点: {}".format(response["msg"],response["host"],response["ip"],response["location"],response["ping_time_avg"],response["ping_time_min"],response["ping_time_max"],response["node"])
+                    msg = "{}！\n查询域名: {}\nIP地址: {}\nIP信息: {}\n平均延迟: {}\n最低延迟: {}\n最高延迟: {}\n检测节点: {}".format(
+                        response["msg"], response["host"], response["ip"], response["location"],
+                        response["ping_time_avg"], response["ping_time_min"], response["ping_time_max"],
+                        response["node"])
                 elif response["code"] == 201:
-                    msg = "{}！\n查询域名: {}\n错误信息: {}".format(response["msg"],ip,response["tips"])
+                    msg = "{}！\n查询域名: {}\n错误信息: {}".format(response["msg"], ip, response["tips"])
                 else:
                     msg = response["msg"] + "！"
             else:
@@ -544,7 +585,9 @@ def SiteTools(msg, QQ, GroupID):
                 response = requests.get(url).json()
                 if response["code"] == 200:
                     data = response["data"]
-                    msg = "查询成功！\n查询域名: {}\n单位名称: {}\n备案性质: {}\n备案号: {}\n网站名称: {}\n首页域名: {}\n审核日期: {}".format(data["url"],data["organizer_name"],data["nature"],data["license"],data["website_name"],data["website_home"],data["audit_time"])
+                    msg = "查询成功！\n查询域名: {}\n单位名称: {}\n备案性质: {}\n备案号: {}\n网站名称: {}\n首页域名: {}\n审核日期: {}".format(
+                        data["url"], data["organizer_name"], data["nature"], data["license"], data["website_name"],
+                        data["website_home"], data["audit_time"])
                 elif response["code"] == -5:
                     msg = "域名{}未查询到备案信息！".format(domain)
                 else:
@@ -562,8 +605,10 @@ def SiteTools(msg, QQ, GroupID):
             if '.' in domain:
                 url = "https://api.tx7.co/api/Included/?url=" + domain
                 response = requests.get(url).json()
-                if response["code"]==200:
-                    msg = "\n查询域名: {}\n百度收录: {}\n搜狗收录: {}\n好搜收录: {}".format(domain, str(response["baidu"]), str(response["sogou"]), str(response["haosōu"]))
+                if response["code"] == 200:
+                    msg = "\n查询域名: {}\n百度收录: {}\n搜狗收录: {}\n好搜收录: {}".format(domain, str(response["baidu"]),
+                                                                            str(response["sogou"]),
+                                                                            str(response["haosōu"]))
                 else:
                     msg = "查询错误！"
             else:
@@ -579,7 +624,7 @@ def SiteTools(msg, QQ, GroupID):
             url = "https://cli.im/api/qrcode/code?text={}&mhid=vUfOWV3rmcshMHYtI9VSPqk".format(domain)
             response = requests.get(url)
             soup = BeautifulSoup(response.text, features='lxml')
-            qrcode_link = "https:"+ soup.find_all("img", {"class": "qrcode_plugins_img"})[0]['src']
+            qrcode_link = "https:" + soup.find_all("img", {"class": "qrcode_plugins_img"})[0]['src']
             suo_url = "http://api.suowo.cn/api.htm"
             suo_data = {
                 "url": qrcode_link,
@@ -599,12 +644,13 @@ def SiteTools(msg, QQ, GroupID):
             if '.' in domain:
                 url = "https://www.oplog.cn/tx.php?url=" + domain
                 response = requests.get(url).json()
-                if response["type"]==1:
+                if response["type"] == 1:
                     msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
-                elif response["type"]==3:
+                elif response["type"] == 3:
                     msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
                 else:
-                    msg = "检测域名: {}\n域名状态: 拦截\n拦截提示: {}\n拦截原因: {}".format(response["url"], response["word"], response["wordtit"])
+                    msg = "检测域名: {}\n域名状态: 拦截\n拦截提示: {}\n拦截原因: {}".format(response["url"], response["word"],
+                                                                          response["wordtit"])
             else:
                 msg = "请输入正确的域名！"
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
@@ -615,7 +661,7 @@ def SiteTools(msg, QQ, GroupID):
             except:
                 POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
                 return
-            if not(("http://" in domain) or ("https://" in domain)):
+            if not (("http://" in domain) or ("https://" in domain)):
                 domain = "http://" + domain
             if '.' in domain:
                 url = "https://xiaojieapi.com/api/v1/get/wget?url=" + domain
@@ -649,7 +695,7 @@ def SiteTools(msg, QQ, GroupID):
             except:
                 POST.GroupMsg(msg='缺失参数', groupid=GroupID, picbase=0, picurl=0)
                 return
-            if not(("http://" in uri) or ("https://" in uri)):
+            if not (("http://" in uri) or ("https://" in uri)):
                 uri = "http://" + uri
             if '.' in uri:
                 suo_url = "http://api.suowo.cn/api.htm"
@@ -664,27 +710,33 @@ def SiteTools(msg, QQ, GroupID):
                 msg = "请输入正确的链接！"
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
 
-#函数区结束
 
-#初始化
+# 函数区结束
+
+# 初始化
 
 customize = json.loads(open('./plugin/settings.json', encoding='utf-8').read())['customize']
+
 
 def loadphp(msg, QQ, GroupID, file):
     rt = subprocess.call(["php", file, base64.b64encode(msg), base64.b64encode(QQ), base64.b64encode(GroupID)])
     return rt
 
+
 def loadpy(msg, QQ, GroupID, file):
     exec(open(file, 'r').read(), globals(), {'msg': msg, 'QQ': QQ, 'GroupID': GroupID})
+
 
 _cbk = customize.copy()
 for _c in _cbk.keys():
     _cbk[_c] = globals()[_cbk[_c]]
 _initx = globals().copy()
 for _initn in _initx.keys():
-    if _initn[:6] == "gmeth_" and type(_initx[_initn]).__name__=='function':
+    if _initn[:6] == "gmeth_" and type(_initx[_initn]).__name__ == 'function':
         _cbk.update({_initn: _initx[_initn]})
 _cbkl1 = _cbk.copy()
+
+
 def Group(msg, QQ, GroupID):
     '''
     Old Method: 
@@ -698,12 +750,12 @@ def Group(msg, QQ, GroupID):
     _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
-        globals().update({_initp:(lambda msg, QQ, GroupID: loadpy(msg, QQ, GroupID, os.path.abspath(_initf)))})
+        globals().update({_initp: (lambda msg, QQ, GroupID: loadpy(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
     _initphp = glob.glob('./plugin/php/*.php')
     for _initf in _initphp:
         _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
-        globals().update({_initp:(lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
+        globals().update({_initp: (lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
     for _stepx in _cbk.values():
         _stepx(msg, QQ, GroupID)
