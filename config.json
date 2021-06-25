@@ -1,15 +1,15 @@
 {
   "BotConfig":{
       "botqq":190532241,
-      "server":"OPQ的server",
+      "server":"http://127.0.0.1:8888",
       "TextShutupTime":10,
       "WarningTimes":1,
-      "MasterGroup":['群1','群2']
+      "MasterGroup":["674125918","677126442"]
   },
   "ServerConfig":{
-      "MySQLHost":"数据库主机",
-      "MySQLUser":"数据库用户名",
-      "MySQLPassword":"数据库密码",
-      "MySQLDataBase":"数据库名"
+      "MySQLHost":"127.0.0.1",
+      "MySQLUser":"misakanetwork",
+      "MySQLPassword":"ZXC741 ASD852 QWE963",
+      "MySQLDataBase":"misakanetwork"
   }
 }
