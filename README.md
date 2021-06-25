@@ -40,7 +40,7 @@ POST.CheHui(GroupID=群号, MsgSeq=消息MsgSeq, MsgRandom=消息MsgRandom)
 ```
 ## 0x03 如果你想贡献代码  
 ### 为御坂御坂新添加群功能  
-你只需要在Group.py修改即可,在我们规定的函数区域加一个函数,比如这样  
+你只需要在Group.py修改即可,在我们规定的函数区域加一个函数,比如这样  
 ```
 def example(msg, QQ, GroupID): #定义函数,三个参数分别代表消息正文.发消息的QQ号,哪一个群
     if msg.split()[0] == "yb.example":  #限制只有当消息是以yb.example开头才触发
