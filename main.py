@@ -138,7 +138,7 @@ def OnGroupMsgs(message):
             try:
                 msg = a.Content.replace('"',r'\"').replace("'","\'")
                 sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
-                ql.write(sqlcode)
+                sql.write(sqlcode)
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
             
