@@ -123,7 +123,6 @@ def OnGroupMsgs(message):
         import time,sql
         time=time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-
         try:
             msg = json.loads(a.Content)
             if msg['Tips'] == '[回复]':
@@ -131,11 +130,18 @@ def OnGroupMsgs(message):
                 msg = a.Content.replace('"',r'\"').replace("'","\'")
                 sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
+            else:
+                msg = a.Content.replace('"',r'\"').replace("'","\'")
+                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sql.write(sqlcode)
         except:
-            msg = a.Content.replace('"',r'\"').replace("'","\'")
-            sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
-            sql.write(sqlcode)
-    
+            try:
+                msg = a.Content.replace('"',r'\"').replace("'","\'")
+                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sql.write(sqlcode)
+            except:
+                print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
+            
         Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
     
     te = re.search(r'\#(.*)', str(a.Content))
@@ -159,9 +165,10 @@ def OnEvents(message):
     ''' 监听相关事件'''
     try:
         if message['CurrentPacket']['Data']["EventMsg"]["Content"] == '群成员撤回消息事件':
+            GroupID = message['CurrentPacket']['Data']["EventData"]["GroupID"]
             msgseq = message['CurrentPacket']['Data']['EventData']['MsgSeq']
             msgran = message['CurrentPacket']['Data']['EventData']['MsgRandom']
-            sql.write(f'UPDATE log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
+            sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
             return
     except:
         pass
