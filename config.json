@@ -4,7 +4,7 @@
       "server":"http://81.68.245.129:8888",
       "TextShutupTime":10,
       "WarningTimes":1,
-      "MasterGroup":"674125918"
+      "MasterGroup":["674125918","677126442"]
   },
   "ServerConfig":{
       "MySQLHost":"81.68.245.129",
