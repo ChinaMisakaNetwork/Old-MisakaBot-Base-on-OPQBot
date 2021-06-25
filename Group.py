@@ -21,6 +21,7 @@ import subprocess
 from bs4 import BeautifulSoup
 import lxml
 import time
+import Tools
 
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
@@ -87,85 +88,14 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
 
 
 def Weather(msg, QQ, GroupID):
-    fakeflag = False
-
-    def print_weather(fakeflag):
-        if fakeflag:
-            cityid = sqlr3[0][2]
+    if msg.split()[0] == "yb.tq":
+        Content = Tools.weather(msg.split()[1])
+        if Content:
+            message = "{}当前{}，{}度，{}{}，空气质量指数{}".format(Content["cityname"], Content["weather"], Content["temp"],
+                                                        Content["WD"], Content["WS"], Content["aqi"])
         else:
-            cityid = sqlr[0][2]
-        rawdata = json.loads(requests.get("http://www.worldweather.cn/zh/json/%d_zh.xml" % cityid).text)
-        rawndta = json.loads(requests.get("https://worldweather.wmo.int/en/json/present.xml").text)["present"]
-        for x in rawndta.keys():
-            if rawndta[x]['cityId'] == cityid:
-                usendta = rawndta[x]
-                break
-        nowtemp = usendta['temp']
-        nowrh = usendta['rh']
-        for x in rawdata["city"]["forecast"]["forecastDay"]:
-            if x["forecastDate"] == time.strftime("%Y-%m-%d"):
-                bfc = x
-                break
-        templow = bfc["minTemp"]
-        temphigh = bfc["maxTemp"]
-        dsc = bfc["weather"]
-        icon = str(bfc["weatherIcon"])[:-2]
-        ret = ""
-        if fakeflag:
-            ret += "找不到这个城市, 但是有1个相似记录\n也许你想找的是这个?\n\n"
-        ret += "%s的天气状况: \n" % rawdata["city"]["cityName"]
-        ret += "温度: " + str(nowtemp) + "℃ (" + str(templow) + "℃ - " + str(temphigh) + "℃)\n"
-        ret += "湿度: " + str(nowrh) + "%\n"
-        ret += dsc + "\n"
-        try:
-            picf = open("./plugin/weather/" + icon + ".png", "rb").read()
-            pbase = base64.b64encode(picf).decode()
-            rtst += "\n[PICFLAG]"
-        except:
-            try:
-                picf = open("./plugin/weather/" + icon + "a.png", "rb").read()
-                pbase = base64.b64encode(picf).decode()
-                rtst += "\n[PICFLAG]"
-            except:
-                pbase = 0
-        ret += "\n程式所使用的API 仍然处于测试阶段, 瞬时温度准确率较差, 请以当地政府部门的数据为准。"
-        POST.GroupMsg(msg=ret, groupid=GroupID, picurl=0, picbase=pbase)
-
-    msg = zhconv.convert(msg, "zh-hans")
-    if msg.split()[0] == "yb.tq" and len(msg.split()) < 3 and len(msg.split()) > 1:
-        city = msg.split()[1].replace("'", "").lower().replace(' ', '')
-        if '#' in city or '--' in city or '"' in city:
-            POST.GroupMsg(
-                msg=zhconv.convert("请不要尝试进行SQL注入。\n怀疑违规行为已经向所有风纪委员通报。", {True: "zh-hant", False: "zh-hans"}[tflag]),
-                groupid=GroupID, picurl=0, picbase=0)
-            POST.GroupMsg(msg="QQ号为" + str(QQ) + "的用户怀疑正在进行SQL注入，请注意且自行判断其违规行为并予以惩罚。\n消息内容: \n" + msg,
-                          groupid=872324801, picurl=0, picbase=0)
-        else:
-            sqlr = sql.read("select * from weather_city_list where 2layer = '" + city + "';")
-            if len(sqlr) == 0:
-                sqlr2 = sql.read("select * from weather_city_list where 1layer = '" + city + "';")
-                if len(sqlr2) > 0:
-                    POST.GroupMsg(msg="请输入具体城市名作为参数。可选列表: \n" + ", ".join(
-                        [x[1] for x in sql.read('SELECT * FROM weather_city_list WHERE 1layer="' + city + '"')]),
-                                  groupid=GroupID, picurl=0, picbase=0)
-                    return 0
-                else:
-                    sqlr3 = sql.read("select * from weather_city_list where 2layer like '%" + city + "%';")
-                    if len(sqlr3) == 0:
-                        POST.GroupMsg(msg="无查询结果。\n请确认是否有错别字或者拼写错误。", groupid=GroupID, picurl=0, picbase=0)
-                        return 0
-                    elif len(sqlr3) == 1:
-                        print_weather(True)
-                    else:
-                        mess = "找不到这个城市, 但是有%d个相似记录\n" % len(sqlr3)
-                        mess += "也许你要找的是: \n"
-                        mess += "\n".join([sqlr3[x][1] for x in range(0, min(10, len(sqlr3)))])
-                        if len(mess) > 10:
-                            mess += "\n等"
-                        POST.GroupMsg(msg=mess, groupid=GroupID, picurl=0, picbase=0)
-                        return 0
-            else:
-                print_weather(False)
+            message = "请输入正确的市级行政区"
+        POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
 def hitokoto(msg, QQ, GroupID):
@@ -552,7 +482,7 @@ def SiteTools(msg, QQ, GroupID):
             msg = "[T]站长工具\n● yb.site Ping [域名/IP]\n● yb.site 扒站 [地址]\n● yb.site 短链接 [链接]\n● yb.site 二维码 [内容]\n● yb.site 备案查询 [域名]\n● yb.site 收录查询 [域名]\n● yb.site 报毒检测 [域名/IP]"
             POST.GroupMsg(msg=msg, groupid=GroupID, picbase=0, picurl=0)
 
-        if msg.split()[1] == "Ping":
+        if msg.split()[1] == "Ping" or msg.split()[1] == "ping":
             try:
                 ip = msg.split()[2]
             except:
