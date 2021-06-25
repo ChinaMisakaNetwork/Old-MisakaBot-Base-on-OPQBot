@@ -33,7 +33,7 @@ MasterGroup = config['MasterGroup']
 def ShutUp(msg, QQ, GroupID):
     import json
     if "yb.jy" in msg and QQ != config['botqq']:
-        Adminer = sql.read('SELECT * FROM Admin;')
+        Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
@@ -49,17 +49,17 @@ def ShutUp(msg, QQ, GroupID):
 
             
             if shutuptime != '0':
-                sqllist = sql.read('SELECT * FROM Violation;')
+                sqllist = sql.read(f'SELECT * {GroupID}_FROM Violation;')
                 if str(shutupuserid) in str(sqllist):
-                    edtimes = sql.read(f'SELECT WarningTimes FROM Violation WHERE QQ="{shutupuserid}";')[0][0]
-                    sql.write(f'UPDATE Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
+                    edtimes = sql.read(f'SELECT WarningTimes FROM {GroupID}_Violation WHERE QQ="{shutupuserid}";')[0][0]
+                    sql.write(f'UPDATE {GroupID}_Violation SET WarningTimes={edtimes+1} WHERE QQ="{shutupuserid}";')
                 else:
-                    sql.write(f'INSERT INTO Violation VALUES ("{shutupuserid}",1);')
+                    sql.write(f'INSERT INTO {GroupID}_Violation VALUES ("{shutupuserid}",1);')
             
             if str(GroupID) == MasterGroup:
                 import time
                 nowtime=time.strftime("%Y%m%d%H%M%S",time.localtime())
-                sqlcode = f'INSERT INTO ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
+                sqlcode = f'INSERT INTO {GroupID}_ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
                 sql.write(sqlcode)
                 return
                 
@@ -350,7 +350,7 @@ def Menu(msg, QQ, Group):
     for item in cfg:
         if not item["priv"]:
             uauser.append(item)
-    Adminer = sql.read('SELECT * FROM Admin;')
+    Adminer = sql.read(f'SELECT * FROM {Group}_Admin;')
     if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
         unuser = cfg
     else:
@@ -383,32 +383,32 @@ def Blockbyman(msg, QQ, GroupID):
     try:
         json_parsing = json.loads(msg)
         if "yb.ch" in json_parsing["Content"]:
-            adminlist = sql.read('select * from Admin;')
+            adminlist = sql.read(f'select * from {GroupID}_Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in adminlist])):
                 msgse = json_parsing["MsgSeq"]
-                msg_dt2 = sql.read('select msgran, id from log where msgseq='+str(msgse)+';')[0]
+                msg_dt2 = sql.read(f'select msgran, id from {GroupID}_log where msgseq='+str(msgse)+';')[0]
                 msgran = msg_dt2[0]
                 idmsg = msg_dt2[1]
                 print("DT2", msg_dt2)
                 print("Ran", msgran, "id", idmsg)
-                if not sql.read('select Chehui from log where id='+str(idmsg))[0][0]:
+                if not sql.read(f'select Chehui from {GroupID}_log where id='+str(idmsg))[0][0]:
                     POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
-                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={idmsg};')
+                    sql.write(f'UPDATE {GroupID}_og SET Chehui=1 WHERE id={idmsg};')
                     flag1 = True
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
                 def rec_dele(msgseqrec, totalnum=0, fg=0):
-                    newl = sql.read('select id, msgseq, msgran from log where Replyseq='+str(msgseqrec))
+                    newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq='+str(msgseqrec))
                     totalnum += len(newl)
                     print("newl", newl)
                     for x in newl:
                         idr = x[0]
                         msgseqr = x[1]
                         msgranr = x[2]
-                        if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                        if not sql.read(f'select Chehui from {GroupID}_log where id='+str(idr))[0][0]:
                             POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                            sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                            sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
                         else:
                             fg += 1
                     for x in newl:
@@ -436,7 +436,7 @@ def Blockbyman(msg, QQ, GroupID):
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
     except:
         if "yb.ch" in msg and QQ != config['botqq']:
-            Adminer = sql.read('SELECT * FROM Admin;')
+            Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
 
                 try:
@@ -449,12 +449,12 @@ def Blockbyman(msg, QQ, GroupID):
                     POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                     return
 
-                msglist = sql.read(f'SELECT msgseq,msgran FROM log WHERE id={msgid}')
+                msglist = sql.read(f'SELECT msgseq,msgran FROM {GroupID}_log WHERE id={msgid}')
                 if msglist == ():
                     POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
                     return
                 else:
-                    chehui = sql.read(f'SELECT Chehui FROM log WHERE id={msgid}')[0][0]
+                    chehui = sql.read(f'SELECT Chehui FROM {GroupID}_log WHERE id={msgid}')[0][0]
                     if chehui == 0 :
                         MsgSeq = msglist[0][0]
                         MsgRandom = msglist[0][1]
@@ -464,7 +464,7 @@ def Blockbyman(msg, QQ, GroupID):
                         flagc = False
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
-                    sql.write(f'UPDATE log SET Chehui=1 WHERE id={msgid};')
+                    sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={msgid};')
                     def rec_del(msgs, totalnum=0, fg=0):
                         newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
                         print('recur', newlist)
@@ -473,9 +473,9 @@ def Blockbyman(msg, QQ, GroupID):
                             idr = x[0]
                             msgseqr = x[1]
                             msgranr = x[2]
-                            if not sql.read('select Chehui from log where id='+str(idr))[0][0]:
+                            if not sql.read(f'select {GroupID}_Chehui from log where id='+str(idr))[0][0]:
                                 POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                                sql.write(f'UPDATE log SET Chehui=1 WHERE id={idr};')
+                                sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
                             else:
                                 fg += 1
                         for x in newlist:

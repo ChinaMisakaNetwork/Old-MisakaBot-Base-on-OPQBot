@@ -4,7 +4,7 @@
       "server":"OPQ的server",
       "TextShutupTime":10,
       "WarningTimes":1,
-      "MasterGroup":"主群,有日志记录"
+      "MasterGroup":['群1','群2']
   },
   "ServerConfig":{
       "MySQLHost":"数据库主机",
