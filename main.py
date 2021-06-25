@@ -165,9 +165,10 @@ def OnEvents(message):
     ''' 监听相关事件'''
     try:
         if message['CurrentPacket']['Data']["EventMsg"]["Content"] == '群成员撤回消息事件':
+            GroupID = message['CurrentPacket']['Data']["EventData"]["GroupID"]
             msgseq = message['CurrentPacket']['Data']['EventData']['MsgSeq']
             msgran = message['CurrentPacket']['Data']['EventData']['MsgRandom']
-            sql.write(f'UPDATE log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
+            sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE msgseq={msgseq} and msgran={msgran};')
             return
     except:
         pass
