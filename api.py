@@ -112,6 +112,8 @@ class PostMsg:
         response = requests.request("POST", url, headers=headers, json=payload)
         return (response.text)
 
+    def GroupReply(self, GroupID, MsgSeq, MsgRandom):
+        pass
 
 # A = PostMsg('http://127.0.0.1:8888',2502515980)
 # A.UserMsg(msg='这是Wordpress',to=3526436393,picbase=0,picurl=0)
