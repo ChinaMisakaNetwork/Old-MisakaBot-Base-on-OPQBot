@@ -356,7 +356,7 @@ def Blockbyman(msg, QQ, GroupID):
                 print("Ran", msgran, "id", idmsg)
                 if not sql.read(f'select Chehui from {GroupID}_log where id=' + str(idmsg))[0][0]:
                     POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
-                    sql.write(f'UPDATE {GroupID}_og SET Chehui=1 WHERE id={idmsg};')
+                    sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idmsg};')
                     flag1 = True
                 else:
                     flag1 = False
