@@ -9,7 +9,7 @@ class PostMsg:
     def UserMsg(self, msg, to, picurl=0, picbase=0):
         serverurl = self.url
         botqq = self.botqq
-        url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
+        url = serverurl + f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
 
         if picbase != 0 or picurl != 0:
             payload = {"toUser": to, "sendToType": 1, "sendMsgType": "PicMsg",
@@ -17,20 +17,20 @@ class PostMsg:
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
         else:
             payload = {"toUser": to, "sendToType": 1,
                        "sendMsgType": "TextMsg", "content": msg}  # 拼接消息包
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
 
     def GroupMsg(self, msg, groupid, picbase=0, picurl=0):
 
         serverurl = self.url
         botqq = self.botqq
-        url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
+        url = serverurl + f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
 
         if picbase != 0 or picurl != 0:
             payload = {"toUser": groupid, "sendToType": 2, "sendMsgType": "PicMsg",
@@ -38,31 +38,31 @@ class PostMsg:
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
         else:
             payload = {"toUser": groupid, "sendToType": 2,
                        "sendMsgType": "TextMsg", "content": msg}  # 拼接消息包
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
 
     def SetShutUpUser(self, qq, time, groupid):
         serverurl = self.url
         botqq = self.botqq
-        url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=OidbSvc.0x570_8'
+        url = serverurl + f'/v1/LuaApiCaller?qq={botqq}&funcname=OidbSvc.0x570_8'
 
         payload = {"GroupID": groupid,
                    "ShutUpUserID": qq, "ShutTime": time}  # 拼接消息包
         headers = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, json=payload)
-        return(response.text)
+        return (response.text)
 
     def TemporaryMsg(self, msg, to, groupid, picbase=0, picurl=0):
 
         serverurl = self.url
         botqq = self.botqq
-        url = serverurl+f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
+        url = serverurl + f'/v1/LuaApiCaller?qq={botqq}&funcname=SendMsg'
 
         if picbase != 0 or picurl != 0:
             payload = {"toUser": to, "groupid": groupid, "sendToType": 3, "sendMsgType": "PicMsg",
@@ -70,19 +70,19 @@ class PostMsg:
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
         else:
             payload = {"toUser": to, "groupid": groupid, "sendToType": 3,
                        "sendMsgType": "TextMsg", "content": msg}  # 拼接消息包
             headers = {'Content-Type': 'application/json'}
             response = requests.request(
                 "POST", url, headers=headers, json=payload)
-            return(response.text)
+            return (response.text)
 
     def Announce(self, groupid, title, text, Pinned=False, Usewindow=False, tonewuser=False):
         serverurl = self.url
         botqq = self.botqq
-        url = serverurl+f'/v1/Group/Announce?qq={botqq}'
+        url = serverurl + f'/v1/Group/Announce?qq={botqq}'
         if Pinned == True:
             Pinned = 1
         else:
@@ -99,28 +99,28 @@ class PostMsg:
                    "Text": text, "Pinned": Pinned, "Type": Type}  # 拼接消息包
         headers = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, json=payload)
-        return(response.text)
+        return (response.text)
 
     def CheHui(self, GroupID, MsgSeq, MsgRandom):
         serverurl = self.url
         botqq = self.botqq
         url = serverurl + \
-            f'/v1/LuaApiCaller?qq={botqq}&funcname=PbMessageSvc.PbMsgWithDraw'
+              f'/v1/LuaApiCaller?qq={botqq}&funcname=PbMessageSvc.PbMsgWithDraw'
         payload = {"GroupID": GroupID,
                    "MsgSeq": MsgSeq, "MsgRandom": MsgRandom}
         headers = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, json=payload)
-        return(response.text)
+        return (response.text)
 
 
-#A = PostMsg('http://127.0.0.1:8888',2502515980)
+# A = PostMsg('http://127.0.0.1:8888',2502515980)
 # A.UserMsg(msg='这是Wordpress',to=3526436393,picbase=0,picurl=0)
 
 def GetUserBilibili(QQ):
     import sql
     QQ = str(QQ)
     tmp = sql.read(f'SELECT * FROM bilibili WHERE QQ="{QQ}"')
-    return({"csrf": tmp[1], "cookie": tmp[2]})
+    return ({"csrf": tmp[1], "cookie": tmp[2]})
 
 
 '''
