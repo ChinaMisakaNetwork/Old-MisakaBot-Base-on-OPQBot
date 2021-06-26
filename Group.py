@@ -98,6 +98,12 @@ def TencentTalk(msg, QQ, GroupID):
     POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
+def Translate(msg, QQ, GroupID):
+    if msg.split()[0] == "yb.fy":
+        message = Tools.Translate(msg.split()[1], msg.split()[2])
+        POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
+
+
 def hitokoto(msg, QQ, GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
     if msg.split(' ')[0] == "yb.my":
