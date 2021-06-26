@@ -93,6 +93,12 @@ def Weather(msg, QQ, GroupID):
         POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
+def TencentTalk(msg, QQ, GroupID):
+    if msg.split()[0] == "yb.talk":
+        message = Tools.TencentTalk(msg.split()[1])
+        POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
+
+
 def hitokoto(msg, QQ, GroupID):
     Mainurl = 'https://v1.hitokoto.cn/'
     if msg.split(' ')[0] == "yb.my":
@@ -357,6 +363,7 @@ def Blockbyman(msg, QQ, GroupID):
                     flag1 = False
                 print("Rollback status", flag1)
                 recnum = 0
+
                 def rec_dele(msgseqrec, totalnum=0, fg=0, recnum=0):
                     newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq=' + str(msgseqrec))
                     totalnum += len(newl)
@@ -371,7 +378,7 @@ def Blockbyman(msg, QQ, GroupID):
                         else:
                             fg += 1
                     for x in newl:
-                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum = recnum + 1)
+                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum=recnum + 1)
                         print('arrrecins', arr)
                         totalnum = arr[0]
                         fg = arr[1]
