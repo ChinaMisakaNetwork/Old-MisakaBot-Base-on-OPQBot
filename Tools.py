@@ -1,5 +1,5 @@
-from requests import get
-from json import loads
+import requests
+import json
 
 
 def GetCityWeatherCode(city):
@@ -7,7 +7,8 @@ def GetCityWeatherCode(city):
     :param city: 地区名
     :return: ['101050703', 'heilongjiang', '漠河', 'Mohe', '漠河', 'Mohe', '457', '165300', 'MH', '黑龙江']
     """
-    data = loads(str(get("http://toy1.weather.com.cn/search?cityname={}".format(city)).content, "utf8")[1:-1])
+    data = json.loads(
+        str(requests.get("http://toy1.weather.com.cn/search?cityname={}".format(city)).content, "utf8")[1:-1])
     if len(data):
         return data[0]["ref"].split("~")
     return None
@@ -20,13 +21,16 @@ def Weather(city):
     """
     code = GetCityWeatherCode(city)
     if code:
-        return loads(str(get("http://d1.weather.com.cn/sk_2d/{}.html".format(code[0])).content, "utf8").replace(
-            "var dataSK=", ""))
+        try:
+            return json.loads(
+                str(requests.get("http://d1.weather.com.cn/sk_2d/{}.html".format(code[0])).content, "utf8").replace(
+                    "var dataSK=", ""))
+        except json.decoder.JSONDecodeError:
+            return None
     return None
 
-
 """
-#Test
+# Test
 if __name__ == "__main__":
-    print(GetCityWeatherCode("厦门"))
+    print(Weather("华盛顿"))
 """
