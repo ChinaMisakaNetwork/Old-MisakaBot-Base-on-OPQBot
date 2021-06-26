@@ -378,8 +378,8 @@ def Blockbyman(msg, QQ, GroupID):
                     for x in newl:
                         arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum = recnum + 1)
                         print('arrrecins', arr)
-                        totalnum += arr[0]
-                        fg += arr[1]
+                        totalnum = arr[0]
+                        fg = arr[1]
                         print(recnum, totalnum, fg)
                     return [totalnum, fg]
 
