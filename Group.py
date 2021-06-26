@@ -361,11 +361,11 @@ def Blockbyman(msg, QQ, GroupID):
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
-
-                def rec_dele(msgseqrec, totalnum=0, fg=0):
+                recnum = 0
+                def rec_dele(msgseqrec, totalnum=0, fg=0, recnum=0):
                     newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq=' + str(msgseqrec))
                     totalnum += len(newl)
-                    print("newl", newl)
+                    print("rec1", newl)
                     for x in newl:
                         idr = x[0]
                         msgseqr = x[1]
@@ -376,9 +376,11 @@ def Blockbyman(msg, QQ, GroupID):
                         else:
                             fg += 1
                     for x in newl:
-                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg)
+                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum + 1)
+                        print('arrrecins', arr)
                         totalnum += arr[0]
                         fg += arr[1]
+                        print(recnum, totalnum, fg)
                     return [totalnum, fg]
 
                 arr2 = rec_dele(msgse)
@@ -400,7 +402,6 @@ def Blockbyman(msg, QQ, GroupID):
             else:
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
     except Exception as e:
-        raise e #Throw Exception
         if "yb.ch" in msg and QQ != config['botqq']:
             Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
