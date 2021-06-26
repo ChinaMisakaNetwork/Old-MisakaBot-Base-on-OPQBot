@@ -2,7 +2,6 @@
 import socketio
 import json
 import time
-import socket
 import logging
 import re
 import Group
