@@ -399,7 +399,8 @@ def Blockbyman(msg, QQ, GroupID):
                 POST.GroupMsg(msg=tmsg, groupid=GroupID, picurl=0, picbase=0)
             else:
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
-    except:
+    except Exception as e:
+        raise e #Throw Exception
         if "yb.ch" in msg and QQ != config['botqq']:
             Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
