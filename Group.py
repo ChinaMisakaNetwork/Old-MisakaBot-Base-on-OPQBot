@@ -84,7 +84,7 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
 
 def Weather(msg, QQ, GroupID):
     if msg.split()[0] == "yb.tq":
-        Content = Tools.weather(msg.split()[1])
+        Content = Tools.Weather(msg.split()[1])
         if Content:
             message = "{}当前{}，{}度，{}{}，空气质量指数{}".format(Content["cityname"], Content["weather"], Content["temp"],
                                                         Content["WD"], Content["WS"], Content["aqi"])
