@@ -89,7 +89,7 @@ def Weather(msg, QQ, GroupID):
             message = "{}当前{}，{}度，{}{}，空气质量指数{}".format(Content["cityname"], Content["weather"], Content["temp"],
                                                         Content["WD"], Content["WS"], Content["aqi"])
         else:
-            message = "请输入正确的市级行政区"
+            message = "请输入正确的中国行政区"
         POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
