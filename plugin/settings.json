@@ -55,6 +55,20 @@
       "priv": false,
       "callback": "SiteTools",
       "cmd": "yb.site"
+    },
+    {
+      "desc": "聊天",
+      "help": "yb.talk (消息)",
+      "priv": false,
+      "callback": "TencentTalk",
+      "cmd": "yb.talk"
+    },
+    {
+      "desc": "翻译",
+      "help": "yb.fy (消息) (语言)",
+      "priv": false,
+      "callback": "Translate",
+      "cmd": "yb.fy"
     }
   ],
   "customize": {
@@ -65,6 +79,8 @@
     "Menu": "Menu",
     "Hitokoto": "hitokoto",
     "Blockbyman": "Blockbyman",
-    "SiteTools": "SiteTools"
+    "SiteTools": "SiteTools",
+    "TencentTalk": "TencentTalk",
+    "Translate": "Translate"
   }
 }
