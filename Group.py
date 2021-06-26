@@ -94,9 +94,8 @@ def Weather(msg, QQ, GroupID):
 
 
 def TencentTalk(msg, QQ, GroupID):
-    if msg.split()[0] == "yb.talk":
-        message = Tools.TencentTalk(msg.split()[1])
-        POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
+    message = Tools.TencentTalk(msg)
+    POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
 def hitokoto(msg, QQ, GroupID):
@@ -643,7 +642,6 @@ def SiteTools(msg, QQ, GroupID):
             else:
                 msg = "请输入正确的链接！"
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
-
 
 # 函数区结束
 

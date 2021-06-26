@@ -7,6 +7,8 @@ import re
 import Group
 import User
 import sql
+import random
+
 
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
@@ -139,7 +141,23 @@ def OnGroupMsgs(message):
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
 
-        Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+        f = open('./plugin/settings.json')
+        settingjson = json.loads(f.read())['menu']
+        f.close()
+
+        cmdlist = []
+        for i in range(len(settingjson)):#遍历json以获得已经知道的命令列表
+            cmd = settingjson[i]['cmd']
+            cmdlist.append(cmd)
+
+        if a.Content.split()[0] in cmdlist: #消息首位是命令时，交给功能函数处理
+            Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+            return
+        else:#不是时，交给聊天函数处理
+            if random.randint(1, 40)==5:  #40分之一的概率
+                Group.TencentTalk(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+                return
+        
 
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
