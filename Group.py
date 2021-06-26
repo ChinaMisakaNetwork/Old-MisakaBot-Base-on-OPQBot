@@ -2,24 +2,19 @@
 
 import json
 import itertools
-import urllib
 import base64
 import api
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
-from sympy import parse_expr, latex, evaluate, latex, Eq, solve, factor, plot
+from sympy import parse_expr, evaluate, latex, Eq, solve, factor
 from PIL import Image
 from urllib import request
 import requests
 import io
 import glob
-import zhconv
 import os
 import sql
-import matplotlib
-import threading
 import subprocess
 from bs4 import BeautifulSoup
-import lxml
 import time
 import Tools
 
