@@ -45,7 +45,7 @@ def ShutUp(msg, QQ, GroupID):
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
             if shutuptime != '0':
-                sqllist = sql.read(f'SELECT * {GroupID}_FROM Violation;')
+                sqllist = sql.read(f'SELECT * FROM {GroupID}_Violation;')
                 if str(shutupuserid) in str(sqllist):
                     edtimes = sql.read(f'SELECT WarningTimes FROM {GroupID}_Violation WHERE QQ="{shutupuserid}";')[0][0]
                     sql.write(f'UPDATE {GroupID}_Violation SET WarningTimes={edtimes + 1} WHERE QQ="{shutupuserid}";')
