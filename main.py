@@ -127,16 +127,16 @@ def OnGroupMsgs(message):
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
             else:
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
         except:
             try:
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')

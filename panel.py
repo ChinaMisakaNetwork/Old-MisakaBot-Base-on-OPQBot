@@ -1,6 +1,7 @@
 import flask
 from flask_cors import CORS
 import pymysql
+import json
 
 #定义数据库连接
 f = open('./config.json')
