@@ -141,7 +141,7 @@ def OnGroupMsgs(message):
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
 
-        f = open('./plugin/settings.json')
+        f = open('./plugin/settings.json',encoding = 'utf-8')
         settingjson = json.loads(f.read())['menu']
         f.close()
 
