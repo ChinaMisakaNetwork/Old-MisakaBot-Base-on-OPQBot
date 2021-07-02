@@ -186,8 +186,7 @@ def Calc(msg, QQ, GroupID):
                     requests.post("http://latex2png.com/api/convert",
                                   json={"auth": {"user": "guest", "password": "guest"}, "latex": u, "resolution": 600,
                                         "color": "000000"}).text)['url']).read()).decode()
-                POST.GroupMsg(msg="结果: " + str(parse(exp[0])) + '
-[PICFLAG]', groupid=GroupID, picurl=0, picbase=img)
+                POST.GroupMsg(msg="结果: " + str(parse(exp[0])) + '\n[PICFLAG]', groupid=GroupID, picurl=0, picbase=img)
             except BaseException as e:
                 POST.GroupMsg(msg="可能无解, 或者输入错误, 或者程式不支援", groupid=GroupID, picurl=0, picbase=0)
                 raise e
@@ -223,10 +222,7 @@ def Calc(msg, QQ, GroupID):
                     buffer = io.BytesIO()
                     fimg.save(buffer, format='PNG')
                     b6e = base64.b64encode(buffer.getvalue()).decode()
-                    POST.GroupMsg(msg="解: 
-" + " 或
-".join(rtlist) + "
-[PICFLAG]", groupid=GroupID, picurl=0,
+                    POST.GroupMsg(msg="解: \n" + " 或\n".join(rtlist) + "\n[PICFLAG]", groupid=GroupID, picurl=0,
                                   picbase=b6e)
                 else:
                     POST.GroupMsg(msg="可能无解, 或者输入错误", groupid=GroupID, picurl=0, picbase=0)
@@ -248,8 +244,7 @@ def Calc(msg, QQ, GroupID):
                                                                                          "resolution": 600,
                                                                                          "color": "000000"}).text)[
                     'url']).read()
-                POST.GroupMsg(msg='解: ' + str(v).replace("**", '^') + "
-[PICFLAG]", groupid=GroupID, picurl=0,
+                POST.GroupMsg(msg='解: ' + str(v).replace("**", '^') + "\n[PICFLAG]", groupid=GroupID, picurl=0,
                               picbase=base64.encodebytes(b6e2).decode())
             except BaseException as e:
                 POST.GroupMsg(msg="可能无法分解, 或者输入错误, 或者程式不支援", groupid=GroupID, picurl=0, picbase=0)
@@ -321,14 +316,12 @@ def Menu(msg, QQ, Group):
     for item in cfg:
         if not item["priv"]:
             uauser.append(item)
-    Adminer = sql.read(f'SELECT * FROM {Group}_Admin;')
+    Adminer = sql.read(f'SELECT * FROM Admin_{Group};')
     if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
         unuser = cfg
     else:
         unuser = uauser
-    menu = "御坂御坂可以帮您做这些事情哦:
-" + "
-".join(
+    menu = "御坂御坂可以帮您做这些事情哦:\n" + "\n".join(
         ["%d. %s (%s)" % (ct + 1, unuser[ct]['desc'], unuser[ct]['help']) for ct in range(len(unuser))])
     if len(msg.split()) == 1:
         POST.GroupMsg(msg=menu, groupid=Group, picbase=0, picurl=0)
@@ -350,8 +343,7 @@ def Menu(msg, QQ, Group):
 
 def gmeth_test(msg, QQ, GroupID):
     if msg.split()[0] == 'yb.test':
-        ret = "OK
-参数: " + ','.join(msg.split()[1:])
+        ret = "OK\n参数: " + ','.join(msg.split()[1:])
         POST.GroupMsg(msg=ret, groupid=GroupID, picbase=0, picurl=0)
         return
 
@@ -496,14 +488,7 @@ def SiteTools(msg, QQ, GroupID):
             return
 
         if msg.split()[1] == "菜单":
-            msg = "[T]站长工具
-● yb.site Ping [域名/IP]
-● yb.site 扒站 [地址]
-● yb.site 短链接 [链接]
-● yb.site 二维码 [内容]
-● yb.site 备案查询 [域名]
-● yb.site 收录查询 [域名]
-● yb.site 报毒检测 [域名/IP]"
+            msg = "[T]站长工具\n● yb.site Ping [域名/IP]\n● yb.site 扒站 [地址]\n● yb.site 短链接 [链接]\n● yb.site 二维码 [内容]\n● yb.site 备案查询 [域名]\n● yb.site 收录查询 [域名]\n● yb.site 报毒检测 [域名/IP]"
             POST.GroupMsg(msg=msg, groupid=GroupID, picbase=0, picurl=0)
 
         if msg.split()[1] == "Ping" or msg.split()[1] == "ping":
@@ -516,21 +501,12 @@ def SiteTools(msg, QQ, GroupID):
                 url = "https://api.tx7.co/api/pingspeed/?host=" + ip
                 response = requests.get(url).json()
                 if response["code"] == 200:
-                    msg = "{}！
-查询域名: {}
-IP地址: {}
-IP信息: {}
-平均延迟: {}
-最低延迟: {}
-最高延迟: {}
-检测节点: {}".format(
+                    msg = "{}！\n查询域名: {}\nIP地址: {}\nIP信息: {}\n平均延迟: {}\n最低延迟: {}\n最高延迟: {}\n检测节点: {}".format(
                         response["msg"], response["host"], response["ip"], response["location"],
                         response["ping_time_avg"], response["ping_time_min"], response["ping_time_max"],
                         response["node"])
                 elif response["code"] == 201:
-                    msg = "{}！
-查询域名: {}
-错误信息: {}".format(response["msg"], ip, response["tips"])
+                    msg = "{}！\n查询域名: {}\n错误信息: {}".format(response["msg"], ip, response["tips"])
                 else:
                     msg = response["msg"] + "！"
             else:
@@ -548,14 +524,7 @@ IP信息: {}
                 response = requests.get(url).json()
                 if response["code"] == 200:
                     data = response["data"]
-                    msg = "查询成功！
-查询域名: {}
-单位名称: {}
-备案性质: {}
-备案号: {}
-网站名称: {}
-首页域名: {}
-审核日期: {}".format(
+                    msg = "查询成功！\n查询域名: {}\n单位名称: {}\n备案性质: {}\n备案号: {}\n网站名称: {}\n首页域名: {}\n审核日期: {}".format(
                         data["url"], data["organizer_name"], data["nature"], data["license"], data["website_name"],
                         data["website_home"], data["audit_time"])
                 elif response["code"] == -5:
@@ -576,18 +545,13 @@ IP信息: {}
                 url = "https://api.tx7.co/api/Included/?url=" + domain
                 response = requests.get(url).json()
                 if response["code"] == 200:
-                    msg = "
-查询域名: {}
-百度收录: {}
-搜狗收录: {}
-好搜收录: {}".format(domain, str(response["baidu"]),
+                    msg = "\n查询域名: {}\n百度收录: {}\n搜狗收录: {}\n好搜收录: {}".format(domain, str(response["baidu"]),
                                                                             str(response["sogou"]),
                                                                             str(response["haosōu"]))
                 else:
                     msg = "查询错误！"
             else:
-                msg = "
-请输入正确的域名！"
+                msg = "\n请输入正确的域名！"
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
 
         if msg.split()[1] == '二维码':
@@ -607,9 +571,7 @@ IP信息: {}
                 "expireDate": "2030-03-31"
             }
             suo = requests.get(suo_url, params=suo_data).text
-            msg = "请求成功！
-请求内容: {}
-二维码链接: {}".format(domain, suo)
+            msg = "请求成功！\n请求内容: {}\n二维码链接: {}".format(domain, suo)
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
 
         if msg.split()[1] == '报毒检测':
@@ -622,16 +584,11 @@ IP信息: {}
                 url = "https://www.oplog.cn/tx.php?url=" + domain
                 response = requests.get(url).json()
                 if response["type"] == 1:
-                    msg = "检测域名: {}
-域名状态: 正常".format(response["url"])
+                    msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
                 elif response["type"] == 3:
-                    msg = "检测域名: {}
-域名状态: 正常".format(response["url"])
+                    msg = "检测域名: {}\n域名状态: 正常".format(response["url"])
                 else:
-                    msg = "检测域名: {}
-域名状态: 拦截
-拦截提示: {}
-拦截原因: {}".format(response["url"], response["word"],
+                    msg = "检测域名: {}\n域名状态: 拦截\n拦截提示: {}\n拦截原因: {}".format(response["url"], response["word"],
                                                                           response["wordtit"])
             else:
                 msg = "请输入正确的域名！"
@@ -661,9 +618,7 @@ IP信息: {}
                                 "expireDate": "2030-03-31"
                             }
                             suo = requests.get(suo_url, params=suo_data).text
-                            msg = "请求成功！
-请求地址: {}
-下载链接: {}".format(domain, suo)
+                            msg = "请求成功！\n请求地址: {}\n下载链接: {}".format(domain, suo)
                             break
                     if not response.get("url"):
                         msg = "请求失败，请尝试添加协议头！"
@@ -689,12 +644,11 @@ IP信息: {}
                     "expireDate": "2030-03-31"
                 }
                 suo = requests.get(suo_url, params=suo_data).text
-                msg = "请求成功！
-原链接: {}
-短链接: {}".format(uri, suo)
+                msg = "请求成功！\n原链接: {}\n短链接: {}".format(uri, suo)
             else:
                 msg = "请输入正确的链接！"
             POST.GroupMsg(msg=msg, groupid=GroupID, picurl=0, picbase=0)
+
 
 # 函数区结束
 
@@ -724,7 +678,7 @@ _cbkl1 = _cbk.copy()
 
 def Group(msg, QQ, GroupID):
     '''
-    Old Method: 
+    Old Method:
     ShutUp(msg, QQ, GroupID)
     LoginBilibili(msg, QQ, GroupID)
     Weather(msg, QQ, GroupID)
@@ -734,13 +688,13 @@ def Group(msg, QQ, GroupID):
     _cbk = _cbkl1.copy()
     _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
-        _initp = os.path.splitext(_initf)[0].replace('\', '/').split('/')[-1]
+        _initp = os.path.splitext(_initf)[0].replace('\\', ' / ').split(' / ')[-1]
         globals().update({_initp: (lambda msg, QQ, GroupID: loadpy(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
-    _initphp = glob.glob('./plugin/php/*.php')
-    for _initf in _initphp:
-        _initp = os.path.splitext(_initf)[0].replace('\', '/').split('/')[-1]
+        _initphp = glob.glob('./plugin/php/*.php')
+        for _initf in _initphp:
+            _initp = os.path.splitext(_initf)[0].replace('\\', ' / ').split(' / ')[-1]
         globals().update({_initp: (lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
-    for _stepx in _cbk.values():
-        _stepx(msg, QQ, GroupID)
+        for _stepx in _cbk.values():
+            _stepx(msg, QQ, GroupID)
