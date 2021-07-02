@@ -24,10 +24,10 @@ print('开始检查数据库')
 for i in range(len(MasterGroup)):
     GroupID = MasterGroup[i]
     try:
-        sql.read(f'SELECT * FROM {GroupID}_Admin;')
-        sql.read(f'SELECT * FROM {GroupID}_log;')
-        sql.read(f'SELECT * FROM {GroupID}_ShutUplog;')
-        sql.read(f'SELECT * FROM {GroupID}_Violation;')
+        sql.read(f'SELECT * FROM Admin_{GroupID};')
+        sql.read(f'SELECT * FROM log_{GroupID};')
+        sql.read(f'SELECT * FROM ShutUplog_{GroupID};')
+        sql.read(f'SELECT * FROM Violation_{GroupID};')
         print(f'{GroupID}的群数据库检查PASS')
     except:
         raise Exception(f'群{GroupID}缺少数据库表,请检查')
