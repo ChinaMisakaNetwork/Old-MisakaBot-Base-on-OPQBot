@@ -2,24 +2,19 @@
 
 import json
 import itertools
-import urllib
 import base64
 import api
 from sympy.parsing.sympy_parser import standard_transformations, implicit_multiplication_application
-from sympy import parse_expr, latex, evaluate, latex, Eq, solve, factor, plot
+from sympy import parse_expr, evaluate, latex, Eq, solve, factor
 from PIL import Image
 from urllib import request
 import requests
 import io
 import glob
-import zhconv
 import os
 import sql
-import matplotlib
-import threading
 import subprocess
 from bs4 import BeautifulSoup
-import lxml
 import time
 import Tools
 
@@ -35,7 +30,7 @@ MasterGroup = config['MasterGroup']
 def ShutUp(msg, QQ, GroupID):
     import json
     if "yb.jy" in msg and QQ != config['botqq']:
-        Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
+        Adminer = sql.read(f'SELECT * FROM Admin_{GroupID};')
         if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
             try:
                 shutupuserid = json.loads(msg)['UserID'][0]
@@ -50,17 +45,17 @@ def ShutUp(msg, QQ, GroupID):
             POST.GroupMsg(msg='操作成功', groupid=GroupID, picurl=0, picbase=0)
 
             if shutuptime != '0':
-                sqllist = sql.read(f'SELECT * {GroupID}_FROM Violation;')
+                sqllist = sql.read(f'SELECT * FROM Violation_{GroupID};')
                 if str(shutupuserid) in str(sqllist):
-                    edtimes = sql.read(f'SELECT WarningTimes FROM {GroupID}_Violation WHERE QQ="{shutupuserid}";')[0][0]
-                    sql.write(f'UPDATE {GroupID}_Violation SET WarningTimes={edtimes + 1} WHERE QQ="{shutupuserid}";')
+                    edtimes = sql.read(f'SELECT WarningTimes FROM Violation_{GroupID} WHERE QQ="{shutupuserid}";')[0][0]
+                    sql.write(f'UPDATE Violation_{GroupID} SET WarningTimes={edtimes + 1} WHERE QQ="{shutupuserid}";')
                 else:
-                    sql.write(f'INSERT INTO {GroupID}_Violation VALUES ("{shutupuserid}",1);')
+                    sql.write(f'INSERT INTO Violation_{GroupID} VALUES ("{shutupuserid}",1);')
 
             if str(GroupID) == MasterGroup:
                 import time
                 nowtime = time.strftime("%Y%m%d%H%M%S", time.localtime())
-                sqlcode = f'INSERT INTO {GroupID}_ShutUplog (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
+                sqlcode = f'INSERT INTO ShutUplog_{GroupID} (time,type,shutuptime,who,QQ) VALUES ("{nowtime}","Shutup","{int(shutuptime)}","{str(QQ)}","{str(shutupuserid)}");'
                 sql.write(sqlcode)
                 return
 
@@ -89,12 +84,23 @@ def Block(Type, GroupID, MsgSeq, MsgRandom, QQ, NickName):
 
 def Weather(msg, QQ, GroupID):
     if msg.split()[0] == "yb.tq":
-        Content = Tools.weather(msg.split()[1])
+        Content = Tools.Weather(msg.split()[1])
         if Content:
             message = "{}当前{}，{}度，{}{}，空气质量指数{}".format(Content["cityname"], Content["weather"], Content["temp"],
                                                         Content["WD"], Content["WS"], Content["aqi"])
         else:
-            message = "请输入正确的市级行政区"
+            message = "请输入正确的中国行政区"
+        POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
+
+
+def TencentTalk(msg, QQ, GroupID):
+    message = Tools.TencentTalk(msg)
+    POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
+
+
+def Translate(msg, QQ, GroupID):
+    if msg.split()[0] == "yb.fy":
+        message = Tools.Translate(msg.split()[1], msg.split()[2])
         POST.GroupMsg(msg=message, groupid=GroupID, picbase=0, picurl=0)
 
 
@@ -310,7 +316,7 @@ def Menu(msg, QQ, Group):
     for item in cfg:
         if not item["priv"]:
             uauser.append(item)
-    Adminer = sql.read(f'SELECT * FROM {Group}_Admin;')
+    Adminer = sql.read(f'SELECT * FROM Admin_{Group};')
     if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
         unuser = cfg
     else:
@@ -346,37 +352,38 @@ def Blockbyman(msg, QQ, GroupID):
     try:
         json_parsing = json.loads(msg)
         if "yb.ch" in json_parsing["Content"]:
-            adminlist = sql.read(f'select * from {GroupID}_Admin;')
+            adminlist = sql.read(f'select * from Admin_{GroupID};')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in adminlist])):
                 msgse = json_parsing["MsgSeq"]
-                msg_dt2 = sql.read(f'select msgran, id from {GroupID}_log where msgseq=' + str(msgse) + ';')[0]
+                msg_dt2 = sql.read(f'select msgran, id from log_{GroupID} where msgseq=' + str(msgse) + ';')[0]
                 msgran = msg_dt2[0]
                 idmsg = msg_dt2[1]
                 print("DT2", msg_dt2)
                 print("Ran", msgran, "id", idmsg)
-                if not sql.read(f'select Chehui from {GroupID}_log where id=' + str(idmsg))[0][0]:
+                if not sql.read(f'select Chehui from log_{GroupID} where id=' + str(idmsg))[0][0]:
                     POST.CheHui(GroupID=GroupID, MsgSeq=msgse, MsgRandom=msgran)
-                    sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idmsg};')
+                    sql.write(f'UPDATE log_{GroupID} SET Chehui=1 WHERE id={idmsg};')
                     flag1 = True
                 else:
                     flag1 = False
                 print("Rollback status", flag1)
                 recnum = 0
+
                 def rec_dele(msgseqrec, totalnum=0, fg=0, recnum=0):
-                    newl = sql.read(f'select id, msgseq, msgran from {GroupID}_log where Replyseq=' + str(msgseqrec))
+                    newl = sql.read(f'select id, msgseq, msgran from log_{GroupID} where Replyseq=' + str(msgseqrec))
                     totalnum += len(newl)
                     print("rec1", newl)
                     for x in newl:
                         idr = x[0]
                         msgseqr = x[1]
                         msgranr = x[2]
-                        if not sql.read(f'select Chehui from {GroupID}_log where id=' + str(idr))[0][0]:
+                        if not sql.read(f'select Chehui from log_{GroupID} where id=' + str(idr))[0][0]:
                             POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                            sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
+                            sql.write(f'UPDATE log_{GroupID} SET Chehui=1 WHERE id={idr};')
                         else:
                             fg += 1
                     for x in newl:
-                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum = recnum + 1)
+                        arr = rec_dele(x[1], totalnum=totalnum, fg=fg, recnum=recnum + 1)
                         print('arrrecins', arr)
                         totalnum = arr[0]
                         fg = arr[1]
@@ -403,7 +410,7 @@ def Blockbyman(msg, QQ, GroupID):
                 POST.GroupMsg(msg='权限不足。 请联系风纪委员处理请求。', groupid=GroupID, picurl=0, picbase=0)
     except Exception as e:
         if "yb.ch" in msg and QQ != config['botqq']:
-            Adminer = sql.read(f'SELECT * FROM {GroupID}_Admin;')
+            Adminer = sql.read(f'SELECT * FROM Admin_{GroupID};')
             if str(QQ) in list(itertools.chain.from_iterable([list(x) for x in Adminer])):
 
                 try:
@@ -416,12 +423,12 @@ def Blockbyman(msg, QQ, GroupID):
                     POST.GroupMsg(msg='缺少参数', groupid=GroupID, picurl=0, picbase=0)
                     return
 
-                msglist = sql.read(f'SELECT msgseq,msgran FROM {GroupID}_log WHERE id={msgid}')
+                msglist = sql.read(f'SELECT msgseq,msgran FROM log_{GroupID} WHERE id={msgid}')
                 if msglist == ():
                     POST.GroupMsg(msg='不存在的消息', groupid=GroupID, picurl=0, picbase=0)
                     return
                 else:
-                    chehui = sql.read(f'SELECT Chehui FROM {GroupID}_log WHERE id={msgid}')[0][0]
+                    chehui = sql.read(f'SELECT Chehui FROM log_{GroupID} WHERE id={msgid}')[0][0]
                     if chehui == 0:
                         MsgSeq = msglist[0][0]
                         MsgRandom = msglist[0][1]
@@ -431,7 +438,7 @@ def Blockbyman(msg, QQ, GroupID):
                         flagc = False
                     print("rollback status 2", flagc)
                     print("seq", MsgSeq, "ran", MsgRandom, "id", msgid)
-                    sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={msgid};')
+                    sql.write(f'UPDATE log_{GroupID} SET Chehui=1 WHERE id={msgid};')
 
                     def rec_del(msgs, totalnum=0, fg=0):
                         newlist = sql.read(f'select id, msgseq, msgran from log where Replyseq={msgs}')
@@ -441,9 +448,9 @@ def Blockbyman(msg, QQ, GroupID):
                             idr = x[0]
                             msgseqr = x[1]
                             msgranr = x[2]
-                            if not sql.read(f'select {GroupID}_Chehui from log where id=' + str(idr))[0][0]:
+                            if not sql.read(f'select Chehui_{GroupID} from log where id=' + str(idr))[0][0]:
                                 POST.CheHui(GroupID=GroupID, MsgSeq=msgseqr, MsgRandom=msgranr)
-                                sql.write(f'UPDATE {GroupID}_log SET Chehui=1 WHERE id={idr};')
+                                sql.write(f'UPDATE log_{GroupID} SET Chehui=1 WHERE id={idr};')
                             else:
                                 fg += 1
                         for x in newlist:
@@ -671,7 +678,7 @@ _cbkl1 = _cbk.copy()
 
 def Group(msg, QQ, GroupID):
     '''
-    Old Method: 
+    Old Method:
     ShutUp(msg, QQ, GroupID)
     LoginBilibili(msg, QQ, GroupID)
     Weather(msg, QQ, GroupID)
@@ -681,13 +688,13 @@ def Group(msg, QQ, GroupID):
     _cbk = _cbkl1.copy()
     _initgb = glob.glob('./plugin/pfile/*.py')
     for _initf in _initgb:
-        _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
+        _initp = os.path.splitext(_initf)[0].replace('\\', ' / ').split(' / ')[-1]
         globals().update({_initp: (lambda msg, QQ, GroupID: loadpy(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
-    _initphp = glob.glob('./plugin/php/*.php')
-    for _initf in _initphp:
-        _initp = os.path.splitext(_initf)[0].replace('\\', '/').split('/')[-1]
+        _initphp = glob.glob('./plugin/php/*.php')
+        for _initf in _initphp:
+            _initp = os.path.splitext(_initf)[0].replace('\\', ' / ').split(' / ')[-1]
         globals().update({_initp: (lambda msg, QQ, GroupID: loadphp(msg, QQ, GroupID, os.path.abspath(_initf)))})
         _cbk.update({_initp: globals().copy()[_initp]})
-    for _stepx in _cbk.values():
-        _stepx(msg, QQ, GroupID)
+        for _stepx in _cbk.values():
+            _stepx(msg, QQ, GroupID)

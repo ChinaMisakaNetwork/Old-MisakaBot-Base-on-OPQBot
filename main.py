@@ -2,12 +2,13 @@
 import socketio
 import json
 import time
-import socket
 import logging
 import re
 import Group
 import User
 import sql
+import random
+
 
 f = open('./config.json')
 config = json.loads(f.read())['BotConfig']
@@ -23,10 +24,10 @@ print('开始检查数据库')
 for i in range(len(MasterGroup)):
     GroupID = MasterGroup[i]
     try:
-        sql.read(f'SELECT * FROM {GroupID}_Admin;')
-        sql.read(f'SELECT * FROM {GroupID}_log;')
-        sql.read(f'SELECT * FROM {GroupID}_ShutUplog;')
-        sql.read(f'SELECT * FROM {GroupID}_Violation;')
+        sql.read(f'SELECT * FROM Admin_{GroupID};')
+        sql.read(f'SELECT * FROM log_{GroupID};')
+        sql.read(f'SELECT * FROM ShutUplog_{GroupID};')
+        sql.read(f'SELECT * FROM Violation_{GroupID};')
         print(f'{GroupID}的群数据库检查PASS')
     except:
         raise Exception(f'群{GroupID}缺少数据库表,请检查')
@@ -126,21 +127,37 @@ def OnGroupMsgs(message):
             if msg['Tips'] == '[回复]':
                 replyseq = msg['MsgSeq']
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran,Replyseq) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)},{int(replyseq)});'
                 sql.write(sqlcode)
             else:
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\"{msg}\","{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
         except:
             try:
                 msg = a.Content.replace('"', r'\"').replace("'", "\'")
-                sqlcode = f'INSERT INTO {a.FromQQG}_log (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
+                sqlcode = f'INSERT INTO log_{a.FromQQG} (time,type,msg,QQ,msgseq,msgran) VALUES ("{time}","message",\'{msg}\',"{a.FromQQID}",{int(a.MsgSeq)},{int(a.MsgRandom)});'
                 sql.write(sqlcode)
             except:
                 print(f'尝试写消息到数据库时出错,现Print出该消息\n \n {a.Content}')
 
-        Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+        f = open('./plugin/settings.json',encoding = 'utf-8')
+        settingjson = json.loads(f.read())['menu']
+        f.close()
+
+        cmdlist = []
+        for i in range(len(settingjson)):#遍历json以获得已经知道的命令列表
+            cmd = settingjson[i]['cmd']
+            cmdlist.append(cmd)
+
+        if a.Content.split()[0] in cmdlist: #消息首位是命令时，交给功能函数处理
+            Group.Group(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+            return
+        else:#不是时，交给聊天函数处理
+            if random.randint(1, 40)==5:  #40分之一的概率
+                Group.TencentTalk(msg=a.Content, QQ=a.FromQQID, GroupID=a.FromQQG)
+                return
+        
 
     te = re.search(r'\#(.*)', str(a.Content))
     if te == None:
